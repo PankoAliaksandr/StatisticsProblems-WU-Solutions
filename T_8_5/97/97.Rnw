@@ -1,0 +1,63 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{Statistics II}
+\fancyhead[RE,LO]{Homework 3}
+\fancyfoot[CE,CO]{\leftmark}
+\fancyfoot[LE,RO]{\thepage}
+\newcommand{\EV}[1]{\mathbb{E}\left[#1\right]}
+\newcommand{\Var}[1]{\text{Var}\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,      
+	urlcolor=cyan,
+}
+
+\author{Team 8}
+\title{Unit 5}
+\begin{document}
+	\maketitle
+	\tableofcontents
+\section*{Task 97}
+
+
+<<hide-par,  warning = FALSE, message = FALSE>>=
+# Libraries
+library(fitdistrplus)
+
+# Create frequency table
+frequency_table <- data.frame(value=c(0, 1, 2, 3, 4, 5, 6),
+                  freq=c(65623, 12571, 1644, 148, 13, 1, 0))
+
+# Create sample vector from frequency table
+sample_vector <- rep(frequency_table$value,
+                     frequency_table$freq)
+
+# Fit a Poisson distribution to sample data 
+fitp <- fitdist(sample_vector ,"pois")
+summary(fitp)
+
+# Fit a negative binomial distribution to sample data 
+fitnb <- fitdist(sample_vector ,"nbinom")
+summary(fitnb)
+
+@
+We can say that negative binomial distribution \textbf{fits data slightly better} since
+it has slightly smaller values of AIC and BIC:
+AIC: \textbf{ 87422.62}   BIC:  \textbf{87441.2} (nbinom)  VS
+AIC:  87556.4   BIC:  87565.69 (pois)
+
+\end{document}

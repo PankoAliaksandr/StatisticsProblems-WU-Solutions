@@ -1,0 +1,781 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage{listings}
+\usepackage{inconsolata}
+%% We used knitr.
+%% To compile with sweave, delete it and insert sweave concordance line.
+<<echo=FALSE>>=
+  options(width=60)
+
+  listing <- function(x, options) {
+    paste("\\begin{lstlisting}[basicstyle=\\ttfamily,breaklines=true]\n",
+      x, "\\end{lstlisting}\n", sep = "")
+  }
+  knit_hooks$set(source=listing, output=listing)
+@
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+\author{Group 8}
+\title{Statistics 1 Unit 3}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+	\maketitle
+	\tableofcontents
+
+\section{Task 41}
+It is given that: $Y=AX+b$,  with: \\
+- Mean $m_{Y}=Am_{X}+b$\\
+- Covariance matrix: $\sum _{Y}=A\sum _{X}A^{t}$.\\
+A multivariate normal distribution has parameters:\\
+$\mu$, mean, and $\sum$, the covariance matrix.
+\newline
+The goal is to find a real matrix A such that:
+\[AA^{t}=\sum\]
+Let's apply case a), the eigendecomposition of $\sum$. \\
+The eigenvalue decomposition of a general matrix A is:
+\[A=TDT^{t}\]
+But in our case: $A=T\sqrt{D}$. So:
+\[\sum=T\sqrt{D}\]\\
+To generate n random points from the multivariate normal distribution with the above parameters ($\mu$ and $\sum$ ), we obtain : 
+<<>>==
+rmvnorm <- function(n, mu, sigma) {
+  a <- ncol(sigma)
+  mu <- rep(mu, n) 
+  X<-matrix(rnorm(n * a),n,a) %*% eigen(sigma)$vectors%*%sqrt(diag(eigen(sigma)$values))+mu
+  return(X)
+}
+@
+
+\section{Task 42}
+\subsection{a}
+\subsubsection{Mean}
+\paragraph{F mean:\\}
+Let's prove that F has mean = 0
+\begin{align*}
+E(F) = E(\frac{\sqrt{\rho}}{1+\rho(d-1)} \sum X_j +\sqrt{\frac{1-\rho}{1+\rho(d-1)}}Y) \\= \frac{\sqrt{\rho}}{1+\rho(d-1)} \sum E(X_j)+\sqrt{\frac{1-\rho}{1+\rho(d-1)}} E(Y),  \\
+\end{align*}
+$X_i,Y \sim N(0,1) $ this gives us $E(F) = 0$.
+
+\paragraph{$\epsilon_i$ means:\\}
+
+Now prove that $\epsilon_i$ has the mean 0.
+\begin{align*}
+\epsilon_i = X_i - \sqrt{\rho} F
+\end{align*}
+
+And we know that:
+\begin{enumerate}
+	\item $X_i \sim N(0,1) $
+	\item $E(F) = 0$
+	\item $E(\alpha F) = \alpha E(F)$
+\end{enumerate} 
+From this 3 facts follows that all $\epsilon_i$ have means 0
+
+\subsubsection{Variance}
+\paragraph{F variance:\\}
+\begin{align*}
+{\rm var} \left( \sum_{i=1}^{n} X_i \right) = E \left( \left[ \sum_{i=1}^{n} X_i \right]^2 \right) - \left[ E\left( \sum_{i=1}^{n} X_i \right) \right]^2
+\end{align*}
+From this after several steps follows:
+\begin{align*}
+{\rm var} \left( \sum_{i=1}^{n} X_i \right) = \sum_{i=1}^{n} \sum_{j=1}^{n} \big( E(X_i X_j)-E(X_i) E(X_j) \big) = \sum_{i=1}^{n} \sum_{j=1}^{n} {\rm cov}(X_i, X_j)
+\end{align*}
+
+Let's prove that $var(F) = 1$.\\
+
+ $ \sigma^2(F) = \sigma^2\left(\frac{\sqrt{\rho}}{1+\rho(d-1)} \sum X_j +\sqrt{\frac{1-\rho}{1+\rho(d-1)}}Y\right) \\
+ = \left(\frac{\sqrt{\rho}}{1+\rho(d-1)}\right)^2 \sigma^2(\sum (X_j))+\left(\sqrt{\frac{1-\rho}{1+\rho(d-1)}}\right)^2 \sigma^2(Y)\\
+ = \left(\frac{\sqrt{\rho}}{1+\rho(d-1)}\right)^2 \left(\sum Cov(X_i,X_i)+  \sum\sum_{i \neq j} Cov(X_i,X_j)\right)+\left(\sqrt{\frac{1-\rho}{1+\rho(d-1)}}\right)^2 \sigma^2(Y) \\
+ = \left(\frac{\sqrt{\rho}}{1+\rho(d-1)}\right)^2 \left(d+ d(d-1)\rho \right)+\left(\sqrt{\frac{1-\rho}{1+\rho(d-1)}}\right)^2 1\\
+ = \frac{{\rho d\left(1+ (d-1)\rho \right)}}{(1+\rho(d-1))^2} +\left(\frac{1-\rho}{1+\rho(d-1)}\right) =  \frac{{\rho d+1-\rho}}{(1+\rho(d-1))}\\ 
+ = \frac{{1+\rho(d-1))}}{(1+\rho(d-1))} = 1.$\\
+\bigskip
+
+\paragraph{Uncorrelation proof:\\}
+We need to prove that
+\begin{align*}
+Cov(F, \epsilon_i) = 0
+\end{align*}
+
+$ Cov(F, \epsilon_i) = Cov(F, X_i - \sqrt{\rho}F) = Cov(F,X_i)-Cov(F, \sqrt{\rho}F) \\= Cov(F,X_i)-\sqrt{\rho}\sigma^2(F) $
+$ \\= Cov(\frac{\sqrt{\rho}}{1+\rho(d-1)} \sum_{j = 1}^d X_j + \sqrt{\frac{{1-\rho}}{1+\rho(d-1)}}Y, X_i) - \sqrt{\rho} $
+$\\=^{X,Y uncorr}   \frac{\sqrt{\rho}}{1+\rho(d-1)} Cov(\sum_{j = 1}^d X_j, X_i) - \sqrt{\rho} $\\
+$ =\frac{\sqrt{\rho}}{1+\rho(d-1)} \left(\sigma^2(X_i)+ \sum_{j \neq 1}^d Cov(X_j, X_i) \right) - \sqrt{\rho} $\\
+$ =\frac{\sqrt{\rho}}{1+\rho(d-1)} (1+ \rho(d-1))- \sqrt{\rho} = 0 $\\
+
+\paragraph{$\epsilon_i$ variance:\\}
+$ \sigma^2(\epsilon_i) = \sigma^2(X_i-\sqrt{\rho}F) = \sigma^2(X_i) + \rho \sigma^2(F) -2\sqrt{\rho}Cov(X_i,F) \\= 1+ \rho -2 \sqrt{\rho} \left(Cov(\epsilon_i,F)+Cov(\sqrt{p}F,F)\right) \\= 1+ \rho - 2 \sqrt{\rho}\sqrt{\rho} \\= 1- \rho.$
+
+\section{Task 43}
+\subsection{Find mean of X}
+$\mathbb{E}(X) = \mathbb{E}(m+\sqrt{W}AZ) = \mathbb{E}(m)+A\mathbb{E}(\sqrt{W}Z)$.\\ 
+Since
+\begin{enumerate}
+	\item  W and Z are independent
+	\item  $\mathbb{E}(Z)=0$
+\end{enumerate}
+\begin{align*}
+\mathbb{E}(\sqrt{W}Z) = \mathbb{E}(\sqrt{W})*\mathbb{E}(Z) = 0 
+\end{align*}
+
+\subsection{Find cov X}
+\begin{align*}
+Cov(m+\sqrt{W}AZ)=Cov(\sqrt{W}AZ) = ACov(\sqrt{W}Z)A^{T}
+\end{align*}
+
+
+ Let's calculate
+ \begin{align*}
+Cov(\sqrt{W}Z)=Cov(\sqrt{W}Z,\sqrt{W}Z) = \\ \mathbb{E}((\sqrt{W}Z-\mathbb{E}(\sqrt{W}Z))(\sqrt{W}Z-\mathbb{E}(\sqrt{W}Z))^{T})=\\
+\mathbb{E}((\sqrt{W}Z)(\sqrt{W}Z)^{T})=\mathbb{E}(W)\mathbb{E}(ZZ^{T}). 
+ \end{align*}  
+ 
+ The last expected value $\mathbb{E}(ZZ^{T})$ is $Cov(Z)$.
+ 
+  $Cov(Z)=\mathbb{E}((Z-\mathbb{E})(Z-\mathbb{E}(Z)^{T}))=\mathbb{E}(ZZ^{T})$. 
+  	
+  	That's why it's equal to I. So, we have $Cov(m+\sqrt{W}AZ)=\mathbb{E}(W)\sum$.\\
+	For other questions we would be thankful for your explanation.
+	
+	
+	
+\section{Task 44}
+Bivariate Normal Distribution has the density:
+\begin{align*}
+	f(x_1,x_2) = \frac{1}{2 \pi \sigma _1 \sigma _2 \sqrt {1 - \rho ^2}} exp\{ - \frac{z_1 ^2 - 2 \rho z_1 z_2 + z_2 ^2}{2 (1 - \rho ^2)} \}
+\end{align*}
+
+where $z_1 = \frac{x_1 - \mu}{\sigma _1}$ and $z_2 = \frac{x_2 - \mu}{\sigma _2}$ and $\sigma _1 ^2 \sigma _2 ^2  (1 - \rho ^2)$ is just the determinant of the covariance matrix.\\
+
+Using substitutions we can get standard normal distributions: $X_1 \sim N(0,1)$ and $X_2 \sim N(0,1)$.\\
+
+The density now is:
+
+\begin{align*}
+	f(x_1,x_2) = \frac{1}{2 \pi \sqrt {1 - \rho ^2}} exp\{ - \frac{x_1 ^2 - 2 \rho x_1 x_2 + x_2 ^2}{2 (1 - \rho ^2)} \}
+\end{align*}
+where $z = \frac{x - \mu}{\sigma} = x$.\\
+Let's rewrite our density as:
+\begin{align}
+f(x_1,x_2) = \frac{1}{ \sqrt{2 \pi}} exp\{ - \frac{x_1 ^2}{2} \} \cdot \frac{1}{\sqrt {2 \pi (1 - \rho ^2)}} exp\{ - \frac{( \rho x_1 - x_2)^2}{2 (1 - \rho ^2)} \}
+\end{align}
+
+Using conditional distribution formula :
+
+\begin{align}
+f(x_1,x_2) = f_{X_1}(x_1) \cdot f_{X_2|X_1}(x_1|x_2)
+\end{align}
+
+The first part of in (1) is density function of a standard normal distribution. 
+The second part represents normal distribution too.
+\begin{center}
+	$f_{X_2|X_1} (x_2|x_1) = \frac{1}{\sqrt {2 \pi (1 - \rho ^2)}} exp\{ - \frac{( \rho x_1 - x_2)^2}{2 (1 - \rho ^2)} \}$.\\
+\end{center}
+with parameters $\mu = \rho x$, 	$\sigma ^2 = 1 - \rho ^2$
+
+\section{Task 47}
+<<>>=
+U <- runif(19908)
+@
+\subsection{ a)}
+<<>>=
+mean(U)
+var(U)
+sd(U)
+@
+
+\subsection{ b)}
+Uniformly distributed random variable $X \sim U\left[ 0,1\right]$ has these properties:
+  $E(X) = \frac{b-a}{2}, \\
+  $\sigma^2(X) = \frac{(b-a)^2}{12}$, \\
+  $\sigma(X) = \sqrt{(Var(X))}$.
+\\
+Given $a=0$ and  $b=1$ it is possible to calculate:\\ 
+$E(X)= \frac{1}{2} $, \\
+$\sigma^2(X)= \frac{1}{12} = 0.083333...$, \\
+$\sigma(X) = \sqrt{(Var(X))} = 0.28867...$\\
+\\Thus, the result from randomly generated numbers is quite close to theoretical one.\\
+\subsection{ c)}
+<<>>=
+length(U[U<0.6])/length(U)
+@
+
+$P(X<0.6) = F(x^{-}) - F(y)$, where $x=0.6$ and $y= 0$:\\
+\begin{center}
+$ F(x) = \frac{x-a}{b-a}$.
+\end{center}\\
+Once again, we have that $a=0$, $b=1$. Thus, $F(0.6) = 0.6$.
+\newline
+\section{Task 48}
+<<>>=
+U1 <- runif(10000,0,1)
+U2 <- runif(10000,0,1)
+@
+
+\subsection{a)}
+We know $\mathbb{E} (U_1 + U_2) = \mathbb{E} (U_1) + \mathbb{E} (U_2)$ since the expectation operator is linear.
+<<>>=
+mean(U1 + U2)
+mean(U1) + mean(U2)
+@
+We can see that our theoretical expectation holds true. Now let's calculate the true value:\\
+\begin{center}
+$ \mathbb{E} (X) = \int \limits_{a}^{b} x f(x) dx = \int \limits_{a}^{b} x \frac{1}{b-a} dx = \frac{1}{b-a} \int \limits_{a}^{b} x  dx = \frac{1}{b-a} \frac{x^2}{2} \mathop{\big|}\limits_a^b = \frac{1}{b-a} \frac{b^2 - a^2}{2} = \frac{a+b}{2}$.\\
+$ \mathbb{E} (X) =  \frac{a+b}{2} = \frac{0+1}{2} = \frac{1}{2}$.
+\end{center}\\
+Therefore, the expectation of the sum of two random variables with $ \mathbb{E} (X) = 0.5$ must be $1$.
+Thus, we are quite close to the theoretical value of the expectation.
+
+\subsection{b)}
+<<>>=
+var(U1 + U2)
+var(U1)+ var(U2)
+@
+They are not exactly equal. We know that $Var(X+Y) = Var(X) + Var(Y) + 2Cov(X,Y).$ If $X$ and $Y$ were really stochastically independent, the $Cov(X,Y)$ would be equal to $0$. Thus, it can be seen that our two randomly drawn variables are not that independent as one would expect in a random sample.
+
+\subsection{c)}
+<<>>=
+U <- U1 + U2
+length(U[U<=1.5])/length(U)
+@
+
+\subsection{d)}
+<<>>=
+K <- sqrt(U1) + sqrt(U2)
+length(K[K<=1.5])/length(K)
+@
+
+\section{Task 49}
+<<>>=
+# a
+n <- 1000000
+U1_vector <- runif(n, 0, 1)
+U2_vector <- runif(n, 0, 1)
+U3_vector <- runif(n, 0, 1)
+sum_vector <- rep(0, n)
+for(i in 1:n)
+{
+  sum_vector[i] <- U1_vector[i] + U2_vector[i] + U3_vector[i]
+}
+
+expectation_1 <- mean(sum_vector)
+print(expectation_1)
+
+# b1
+var_1 <- var(sum_vector)
+print(var_1)
+
+# b2
+var_2 <- var(U1_vector) + var(U2_vector) + var(U3_vector)
+print(var_2)
+@
+
+<<>>=
+# c
+sqrt_sum_vector <- rep(0, n)
+for(i in 1:n)
+{
+  sqrt_sum_vector[i] <- sqrt(U1_vector[i] + U2_vector[i] + U3_vector[i])
+}
+expectation_2 <- mean(sqrt_sum_vector)
+print(expectation_2)
+
+# d
+frequency <- 0
+for(i in 1:n)
+{
+  if ( (sqrt(U1_vector[i]) + sqrt(U2_vector[i]) + sqrt(U3_vector[i])) >= 0.8 )
+  {
+    frequency <- frequency + 1
+  }
+}
+
+relative_frequency <- frequency / n
+print(relative_frequency)
+@
+
+\section{Task 50}
+
+<<>>=
+n <- 100
+size <- 20
+prob <- 0.5
+student_results <- rbinom(n, size, prob)
+student_results 
+# a
+mean(student_results)
+sd(student_results)
+
+# b
+proportion <- sum(student_results >= 0.3*size) / n
+proportion
+@
+
+\section{Task 51}
+
+<<>>=
+n <- 10000
+size <- 20
+prob <- 0.3
+simulation_results <- rbinom(n, size, prob)
+
+# a
+frequency <- sum(simulation_results <= 5)
+empirical_probability_1 <- frequency / n
+theoretical_probability_1 <- pbinom(5, size, prob)
+
+# b
+frequency <- sum(simulation_results == 5)
+empirical_probability_2 <- frequency / n
+theoretical_probability_2 <- dbinom(5, size, prob)
+
+# c
+empirical_expectation <- mean(simulation_results)
+theoretical_expectation <- size*prob
+@
+\newpage
+<<>>=
+# d
+empirical_variance <- var(simulation_results)
+theoretical_variance <- size*prob*(1-prob)
+
+# e
+empirical_percentile_95 <- quantile(simulation_results, 0.95) 
+print(empirical_percentile_95)
+theoretical_percentile_95 <-qbinom(0.95, size, prob)
+print(theoretical_percentile_95)
+
+# f
+empirical_percentile_99 <- quantile(simulation_results, 0.99) 
+print(empirical_percentile_99)
+theoretical_percentile_99 <-qbinom(0.99, size, prob)
+print(theoretical_percentile_99)
+
+# g
+empirical_percentile_99.9999 <- quantile(simulation_results, 0.999999) 
+print(empirical_percentile_99.9999)
+theoretical_percentile_99.9999 <-qbinom(0.999999, size, prob)
+print(theoretical_percentile_99.9999)
+
+# To estimate extreme quantities accurately, the sample size should be increased
+@
+
+
+\section{Task 52}
+<<>>=
+ranbin1 <- function(n, size, prob){
+  cumbins <- pbinom(0: (size -1), size, prob)
+  singlenumber <- function(){
+    x <- runif(1)
+    sum(x > cumbins)
+  }
+  replicate(n, singlenumber())
+}
+@
+\subsection{a)}
+
+The function "ranbin1" can simulate binomial pseudorandom variates using the inversion method. \\
+First, we need to generate one number from $U\left[ 0,1\right]$. In the function it is x. Moreover, it is necessary to generate all values of CDF, excluding the last value (CDF $=$ 1). Values of CDF will be reduced (size -1), in order to compare $F(x_{i - 1}) < u \leq F(x_{i})$.\\
+The "sum(x \textgreater \enspace cumbins) means that the function sums up TRUE-values of the logical vector when $u > F(x_{i - 1})$, it gives us the number of experiences in which we had success with the given probability p. \\
+\newline
+\subsection{b)}
+<<>>=
+system.time(ranbin1(1000, 10, 0.4))
+system.time(rbinom(1000,10,0.4))
+@
+<<>>=
+system.time(ranbin1(10000,10,0.4))
+system.time(rbinom(10000,10,0.4))
+@
+<<>>=
+system.time(ranbin1(100000,10,0.4))
+system.time(rbinom(100000,10,0.4))
+@
+The standard function "rbinom" is faster for generating binomial distributed random variables.\\
+
+\section{Task 53}
+<<>>=
+ranbin2 <- function(n, size, prob){
+  singlenumber <- function(size, prob){
+    x <- runif(size)
+    sum(x < prob)
+  }
+  replicate(n, singlenumber(size, prob))
+}
+@
+
+\subsection{a)}
+The function consists of 3 arguments: n, size and prob.\\ 
+\textbf{n} indicates the number of random variables generated in the process.\\
+\textbf{size} gives the maximal bound for a binomial distributed random variable. \\
+\textbf{prob} is the probability of the random variables.\\
+Inner function "singlenumber" consists of 2 arguments: size and prob. The function generates uniform distributed random variables corresponding to the argument size. \\
+"sum(x $<$ prob)". The summation of all variables $<$ the given probability allows to count all succesfull realizations. This procedure is replicated n-times in order to get the vector with binomial random variables. \\
+Also, observe a binomial distribution is the sum of independent and identically distributed Bernoulli random variables. By replicating the Bernoulli process n-times, we get the binomial distribution.
+
+\subsection{b)}
+<<>>=
+system.time(ranbin2(10000,10,0.4))
+system.time(rbinom(10000,10,0.4))
+system.time(ranbin1(10000,10,0.4))
+@
+
+<<>>=
+system.time(ranbin2(10000,100,0.4))
+system.time(rbinom(10000,100,0.4))
+system.time(ranbin1(10000,100,0.4))
+@
+
+<<>>=
+system.time(ranbin2(10000,1000,0.4))
+system.time(rbinom(10000,1000,0.4))
+system.time(ranbin1(10000,1000,0.4))
+@
+
+"ranbin2" does not enhance the efficiency of code considering system time. The fastest is still "rbin", but "ranbin1" is a bit faster than "ranbin2".\\
+
+\section{Task 54}
+<<>>=
+ranbin3 <- function(n, size, prob) {
+  singlenumber <- function(size, prob) {
+    k <- 0
+    U <- runif(1)
+    X <- numeric(size)
+    while (k < size) {
+      k <- k + 1
+      if (U <= prob) {
+        X[k] <- 1
+        U <- U / prob
+      } else {
+        X[k] <- 0
+        U <- (U - prob) / (1 - prob)
+      }
+    }
+    sum(X)
+  }
+  replicate(n, singlenumber(size, prob))
+}
+
+ranbin3(100,20,0.4)
+ranbin3(100,500,0.7)
+@
+\subsection{b)}
+General formula: $P(X_2\mid X_1)=\frac{P(X_2\cap X_1)}{P(X_1)}$ \\
+$\Rightarrow P(\frac{U}{p} < x \cap U < p) = \frac{px}{x} = p$
+\subsection{c)}
+Analogous: $P(\frac{U-p}{1-p} < x\cap U > p) = \frac{x-px}{1-p} = x$
+\subsection{d)}
+"ranbin3" generates random numbers from the uniform distribution by dividing the random variable U by the probability (if $U \leq \text{prob}$) or (U - prob) / (1 - prob). 
+Then the vector X is constructed consisting of the values 0 and 1. It represents the sequence of the Bernoulli experiment. Summation and replication create a binomial random variable for each number. 
+
+\section{Task 55}
+
+First, let's find the probability that k people have different birthdays is: (firsly we considered some simple cases, and it seems that the pattern preserves). \\
+The total of all the possible outcomes is $365^k$.\\
+Therefore: $P(k=0) = \frac{(365)(364)...(365-k+1)}{365^{k}}$ ,where $P(k=0)$ means noone has the same birthday\\
+Now, let's use the following rule of probability: \\
+$P(A) = 1 - P(A^{c})$ \\
+$P(k \geq 1) = 1 - P(k=0) = 1-\frac{(365)(364)...(365-k+1)}{365^{k}} = 1 - \prod_{i=1}^k (1 - \frac{i - 1}{365}) $
+
+<<>>==
+f55<- function(n){
+  p <- c()
+  for(i in 1:n)
+    p <- prod(c((1 - (i -1)/365), p))
+  1-p
+}
+#The min sample size is:
+i <- 1
+while (f55(i) < 1/2) {
+  i <- i+1
+}
+i
+#TEST
+f55(i)
+f55(i) == pbirthday(i)
+@
+
+\section{Task 56}
+In order to quadratic equation has real roots, we need to find \\ 
+$P(D = b^{2}-4ac \geq 0)$:
+<<>>=
+a<-runif(100, min=-1, max=1)
+b<-runif(100, min=-1, max=1)
+c<-runif(100, min=-1, max=1)
+  
+D <- function(a, b, c){
+  ifelse((b^2-4*a*c) >= 0, 1, 0)
+  }
+
+sum(D(a,b,c)) / length(D(a,b,c))
+@
+Firstly, we need to generate 100 numbers which are U-distributed on the interval $\left[ -1,1\right]$ for a, b, c. Then, we trying to find the cases when $D \geq 0$ and create the vector which has 1 or 0 values, depending on the discriminant. After, we calculate the probability by summing up the cases when $D \geq 0$ and divide by numbers of all possible outcomes of $D$. This gives us the probability when quadratic equation has real roots.
+
+\section{Task 57}
+
+$F^{-1}(u) \leq x \Leftrightarrow u \leq F(x) $\\
+Proof: \\
+$F^{-1}(u) \leq x \Rightarrow x \in \{z: F(z) \geq u\} \Rightarrow u \leq F(x) $\\
+$u \leq F(x) \Rightarrow x \in \{z : F(z) \geq u\} \Rightarrow F^{-1}(u) \leq x \text{. Because } F^{-1}(u)=\inf\{x: F(x) \geq u \}\\
+\\
+$F( F^{-1}(u) ) \geq u$ \\
+Proof: \\
+Let $ x_n \in \{x : F(x) \geq u\} $ s.t. $ \lim _{n\rightarrow \infty }x_{n}=x_{0}  \Rightarrow \liminf_n F(x_n) \geq u $ (but since F is monotone nondecreasing and continuous from the right) $\Rightarrow \liminf_n F(x_n) \leq F(x_0) \Rightarrow x_0 \in \{x: F(x) \geq u\} \Rightarrow \{x: F(x) \geq u\} $ contains its infimum (since closed) $ \Rightarrow F( F^{-1}(u) ) \geq u $ \\
+\\
+$F^{-1}(F(x)) \leq x $\\
+Proof: \\
+$ F^{-1}(F(x)) = \inf\{z: F(z) \geq F(x)\} \Rightarrow x \in \{z: F(z) \geq F(x)\} \\ \Rightarrow F^{-1}(F(x)) \leq x $ \\
+\\
+Taking into account the propositions about CDFs and quantile functions, it is possible that $ x \notin \text{range(F)} \cup \{\inf \text{range(F)}, \sup \text{range(F)}\} \text{,e.g.} x < \inf \text{range(F)}$ and a CDF does not have to be strictly increasing (it can be flat). Thus, there are two cases when the inequalities are strict respectively: \\
+$F(F^{-1}(u)) \neq u \wedge F^{-1}(F(x)) \neq x$
+
+\section{Task 58}
+Let F be a CDF and $X\sim F$.\\
+Prove that: If F is continious, then $F\left( X\right) \sim U\left[ 0,1\right]$ \\
+\\
+Proof: \\
+$P(F(X) \leq x) \stackrel{1}{=} P(F^{-1}(F(X)) \leq F^{-1}(x)) \stackrel{2}{=} P(X \leq F^{-1}(x)) = \\ = F(F^{-1}(x)) \stackrel{3}{=} x \enspace \forall x\in \left( 0,1\right)$ \\
+Thus, $ P(F(X) \leq x) = x \enspace \forall x\in \left( 0,1\right) \Rightarrow F\left( X\right) \sim U\left[ 0,1\right]$ \\
+\\
+The proof is based on the following 3 propositions of quantile functions and CDF: \\
+1) F is continious $\Leftrightarrow F^{-1}$ is strictly increasing on $\left[ 0,1\right]$ \\
+2) $F^{-1}(F(x)) \leq x$. If F is strictly increasing, then $F^{-1}(F(x)) = x$ \\
+3) Since $ x \in \text{range(F)} \cup \{\inf \text{range(F)}, \sup \text{range(F)}\} \Rightarrow F(F^{-1}(x)) = x $
+
+\section{Task 59}	
+Based on given data we can find distribution function F(X) =
+\begin{align*}
+0,(- \infty, x_1)\\
+p_1, [x_1,x_2)\\
+p_1+p_2, [x_2,x_3)\\
+\dots\\
+p_1+\dots+p_{n-1}, [x_{n-1}, x_n)\\
+1, [x_n, +\infty)
+\end{align*}
+
+Now F(x) is a discrete random variable
+with the set of values:0, $p_1, p_1+p_2 ..., 1$
+
+Let's find its distribution function F(F(X)) = 
+\begin{align*}
+0, (-inf,0)\\
+\frac{x_1-m}{p-m},[0,p_1)\\
+\frac{x_2-m}{p-m},[p_1,p_2)\\
+\dots\\
+\frac{x_{n-1}-m}{p-m},[p_{n-1},p_n)\\
+1,[p_n,+\infty]\\
+\end{align*}
+where $p \rightarrow +\infty, m \rightarrow -\infty$
+
+\section{Task 60}
+The Pareto(a,b) distribution has cdf\\
+\begin{center}
+$F(x) = 1-\left(\frac{b}{x}\right)^a$,\\[\baselineskip]
+where $x\geq0$ and $a>0$.
+\end{center}\\
+Let's derive $F^{-1} (U):$\\
+\begin{center}
+\[ F(x) = 1 - \left(\frac{b}{x}\right)^a \]
+
+\[ \frac{b}{x} = (1-F(x))^{1/a} \]
+
+\[ x = b (1-F(x))^{-1/a} \]
+
+\[ x = F^{-1} (U) = b (1-u)^{-1/a} \]
+\end{center}\\
+It is possible to simplify it further, because for $U \raisebox{-0.9ex}{\~{}} U(0,1)$, $U$ is uniform if $1-U$ is uniform. So the shorter version:
+\begin{center}
+$x = F^{-1} (U) = b u^{-1/a}$
+\end{center}\\
+Since we need to generate sample Pareto(2,2), $x\geq$2.\\
+<< fig=TRUE>>=
+pareto_random <- function(a,b,n){
+  b* (runif(n))^(-1/a)
+}
+
+sample_P <- pareto_random(2,2,100)
+sample_P
+hist(sample_P, probability = TRUE, main="Pareto density comparison",
+     col="green", xlim = c(2,20), ylim=c(0,1), breaks=50)
+z <- seq(0,20,.01)
+lines(z, 8/z^3, col="red")
+@
+\newline
+The red line indicates the density of the Pareto distribution Pareto(2,2):\\
+\begin{center}
+$F'(x) = \left(1 - \left(\frac{2}{x}\right)^2\right)'=\frac{8}{x^{3}}$
+\end{center}\\
+The pink histogram is the sample we have created.\\
+\section{Task 61}
+The generalized Pareto distribution has cdf
+\begin{center}
+$F(x) = 1 - (1+\xi(x-\mu)/\sigma)^{-1/\xi}$
+\end{center}\\
+for in the support of this distribution, where $\mu \in \mathbb{R}$ is the location parameter, $\sigma > 0$ is the scale parameter, and $\xi \in \mathbb{R}$ is the shape parameter.
+\subsection{a)}
+Let's express $(x-\mu)/\sigma$ as $w$.\\
+Then:\\
+\begin{center}
+$\left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{-\frac{1}{\xi}}=\frac{1}{\left(1+\xi w \right)^{\frac{1}{\xi}}}$
+\end{center}\\
+It is known that:
+\begin{center}
+$\displaystyle\lim_{n\to 0} (1+n)^{\frac{1}{n}} = e$
+\end{center}
+\\
+Therefore:\\
+$\displaystyle\lim_{\xi\to 0} \left( 1 - \left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{-\frac{1}{\xi}} \right) = 1 - \frac{1}{\displaystyle\lim_{\xi\to 0} \left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{\frac{1}{\xi}}}$\\
+$ = 1 - \frac{1}{\displaystyle\lim_{\xi\to 0} \left(1+\xi w \right)^{\frac{1}{\xi}}} = 1 - \frac{1}{e^{w}} = 1 - e^{-\frac{(x-\mu)}{\sigma}}$
+\subsection{b)}
+Let's consider separated cases:
+\subsubsection{$\xi=0$}
+As it is proved above, if $\xi$ tends to zero, then Pareto cdf tends to $1 - e^{-\frac{(x-\mu)}{\sigma}}$.\\
+Since this expression is cdf, we can conclude that:
+\begin{center}
+\[ 0\leq 1 - e^{-\frac{(x-\mu)}{\sigma}} \leq 1 \]
+\[ -1\leq - e^{\frac{(\mu-x)}{\sigma}} \leq 0 \]
+\[ 0\leq e^{\frac{(\mu-x)}{\sigma}} \leq 1 \]
+\end{center}
+Since $e$ in any power is always greater than zero, we can skip the left boundary of inequality:
+\begin{center}
+\[e^{\frac{(\mu-x)}{\sigma}} \leq 1 \]
+\end{center}
+By taking logarithms we get:
+\begin{center}
+\[\frac{(\mu-x)}{\sigma}} \leq 0 \]
+\[\mu-x\leq 0 \]
+\[x \geq \mu \]
+\end{center}
+\subsubsection{$\xi<0$}
+Since the original expression is cdf, we get:
+\begin{center}
+\[ 0 \leq 1 - \left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{-\frac{1}{\xi}} \leq 1\]
+\[ -1 \leq  - \left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{-\frac{1}{\xi}} \leq 0\]
+\[ 0 \leq  \left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{-\frac{1}{\xi}} \leq 1\]
+\end{center}
+Since $\xi<0$, if we raise inequality to the power $-\xi$, which is positive, we keep the signs:
+\begin{center}
+\[ 0 \leq  1+\frac{\xi(x-\mu)}{\sigma} \leq 1 \]
+\[ -1 \leq  \frac{\xi(x-\mu)}{\sigma} \leq 0 \]
+\end{center}
+Since $\xi<0$, if we multiply by $\xi$, we need to reserves signs ($\sigma>0$, so it has no influence in this case):
+\begin{center}
+\[ -\frac{\sigma}{\xi} \geq x - \mu \geq 0 \]
+\[ 0 \leq  x - \mu \leq -\frac{\sigma}{\xi} \]
+\[ \mu \leq  x \leq \mu -\frac{\sigma}{\xi} \]
+\end{center}
+
+
+\subsubsection{$\xi>0$}
+Since the original expression is cdf, we get:
+\begin{center}
+\[ 0 \leq 1 - \left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{-\frac{1}{\xi}} \leq 1\]
+\[ -1 \leq  - \left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{-\frac{1}{\xi}} \leq 0\]
+\[ 0 \leq  \left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{-\frac{1}{\xi}} \leq 1\]
+\end{center}
+Since $\xi>0$, if we raise inequality to the power $-\xi$, which is negative, we reverse the signs and skip zero boundary:
+\begin{center}
+\[ 1+\frac{\xi(x-\mu)}{\sigma} \geq 1 \]
+\[ \frac{\xi(x-\mu)}{\sigma} \geq 0 \]
+\end{center}
+Since $\xi>0$ and $\sigma>0$:
+\begin{center}
+\[ \xi(x-\mu) \geq 0 \]
+\[ x-\mu \geq 0 \]
+\[ x \geq \mu \]
+\end{center}
+\section{Task 62}
+Let's derive $F^{-1} (U):$\\
+\begin{center}
+\[ F(x) = 1 - \left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{-\frac{1}{\xi}} \]
+
+\[ \left(1+\frac{\xi(x-\mu)}{\sigma}\right)^{-\frac{1}{\xi}} = 1-F(x)) \]
+
+\[ 1+\frac{\xi(x-\mu)}{\sigma} = (1-F(x))^{-\xi} \]
+
+\[ \frac{\xi(x-\mu)}{\sigma} = (1-F(x)) ^{-\xi} - 1 \]
+
+\[ x-\mu = \frac{\sigma}{\xi}((1-F(x)) ^{-\xi} - 1) \]
+
+\[ x = \frac{\sigma}{\xi}((1-F(x)) ^{-\xi} - 1) + \mu \]
+
+\[ x = F^{-1} (U) = \frac{\sigma}{\xi}((1-u)^{-\xi} -1) + \mu \]
+\end{center}\\
+It is possible to simplify it further, because for $U \raisebox{-0.9ex}{\~{}} U(0,1)$, $U$ is uniform if $1-U$ is uniform. So the shorter version:
+\begin{center}
+$x = F^{-1} (U) = \frac{\sigma}{\xi}(u^{-\xi} -1) + \mu$
+\end{center}\\
+Let's generate random sample where $\mu=2$, $\sigma=2$ and $\xi=-0.25$.\\
+X is bounded as follows: $2 \leq x \leq 10$.
+<<fig=TRUE>>=
+gen_pareto<-function(n,mu,sigma,xi) {
+     (sigma/xi)*(runif(n)^(-xi)-1)+mu
+}
+sample_GP <- gen_pareto(1000,2,2,-0.25)
+sample_GP
+hist(sample_GP, probability = TRUE, main="General Pareto density comparison",
+     col="green", xlim = c(2,10), ylim=c(0,1), breaks=500)
+z <- seq(0,10,.01)
+lines(z, 0.5*(1.25-0.125*z)^3, col="red")
+@
+\newline
+The red line indicates the density of the General Pareto distribution GPD(2,2,-0.25):\\
+\begin{center}
+$F'(x) = \left(1 - \left(1-\frac{0.25}{2}(x-2)\right)^{\frac{1}{0.25}}\right)' = (1-(1.25-0.125x)^{4})'=0.5*(1.25-0.125x)^{3}$
+\end{center}
+
+\section{Task 63}
+<<>>=
+discrete_inverse_transform <- function(probability_vector)
+{
+  U  <- runif(1)
+  if(U <= probability_vector[1]){
+    return(1)
+  }
+  for(k in 2:length(probability_vector)) {
+    if(sum(probability_vector[1:(k-1)]) < U && U <= sum(probability_vector[1:k]))
+    {
+      return(k)
+    }
+  }
+}
+
+probability_vector <- c(0.1, 0.2, 0.2, 0.2, 0.3)
+x_vector <- c(0, 1, 2, 3, 4)
+n <- 1000
+
+sample_vector_1 <- rep(0,n)
+frequency_vector_1 <- rep(0,length(x_vector))
+for (i in 1:n)
+{
+  k <- discrete_inverse_transform(probability_vector)
+  sample_vector_1[i] <- x_vector[k]
+  frequency_vector_1[k] <- frequency_vector_1[k] + 1
+}
+
+relative_frequency_vector_1 <- frequency_vector_1 / n
+
+cat("Theoretical probability vector: ", probability_vector, '\n')
+cat("Empirical probability vector: ", relative_frequency_vector_1, '\n')
+
+sample_vector_2 <- sample(x_vector, 1000, replace = TRUE)
+frequency_vector_2 <- rep(0,length(x_vector))
+for (i in 1:n)
+{
+  k <- sample_vector_2[i] + 1
+  frequency_vector_2[k] <- frequency_vector_2[k] + 1
+}
+relative_frequency_vector_2 <- frequency_vector_2 / n
+cat("Relative frequency vector with sample function: ", relative_frequency_vector_2, '\n')
+@
+
+
+
+
+\end{document}

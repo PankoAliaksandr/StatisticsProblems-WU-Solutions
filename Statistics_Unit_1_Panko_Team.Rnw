@@ -1,0 +1,955 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\author{Team 9}
+\title{Statistics 1 Unit 1}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+	\maketitle
+	\tableofcontents
+
+
+\section{Task 1}
+\subsection{a}
+<<>>=
+#Solution 1
+Hilbert <- function(n) {
+  Hilbert_matrix <- matrix(0, n, n)
+  for(i in 1:n) {
+    Hilbert_matrix[i, ] <- c(i + 1:n - 1)
+  }
+  for(j in 1:n) {
+    Hilbert_matrix[ ,j] <- c(1:n + j - 1)
+  }
+  1 / Hilbert_matrix
+}
+
+#Solution 2
+Hilbert2 <- function(n) {
+  i <- 1:n
+  1 / outer(i - 1, i, "+") 
+}
+@
+
+\subsection{b, c}
+<<>>=
+for(i in 1:11) {
+  #print(solve(Hilbert2(i)))
+}
+
+for(i in 1:6) {
+  #print(qr.solve(Hilbert2(i)))
+}
+@
+There is no problems for the first 11 inverses for "solve" and for 6 inverses for "qr.solve" (default tolerance for qr.solve is higher), but then the is an error in R. However, as the inverse of Hilbert matrix can be represented explicitly, it always exists and contains integers only, but the determinant of Hilbert matrices with high dimensions converges to zero. That is why R gives us error.
+
+\section{Task 2}
+To find the coefficients of the quintic polynomial, we basically need to solve the system of equations. The result represents the coefficients.
+<<>>=
+x <- 10:15
+p_x <- c(25, 16, 26, 19, 21, 20)
+
+matrix_of_coef_before_alphas <- outer(x, 0:5, "^")
+alphas <- solve(matrix_of_coef_before_alphas, p_x)
+alphas
+@
+
+
+\section{Task 3}
+First, let's create the required random matrix:
+<<>>=
+matrix_X <- matrix(runif(5*3), 5, 3)
+@
+
+\subsection{a}
+Now, let's calculate $H = X(X'X)^{-1}X'$:
+<<>>=
+matrix_H <- matrix_X %*% solve((t(matrix_X) %*% matrix_X)) %*% t(matrix_X)
+matrix_H
+@
+Eigenvalues and corresponding eigenvectors of H are:
+<<>>=
+eigen(matrix_H)
+@
+
+\subsection{b}
+
+<<>>=
+trace_H <- sum(diag(matrix_H))
+trace_H
+# by default tolerance = sqrt(.Machine$double.eps)
+all.equal(trace_H, sum(eigen(matrix_H)$values))
+@
+As we can see they are the same.
+
+\subsection{c}
+<<>>=
+det_H <- det(matrix_H)
+all.equal(det_H, prod(eigen(matrix_H)$values))
+@
+So, the same result: determinant is equal to product of eigenvalues
+
+\subsection{d}
+To verify that the columns of X are eigenvectors of H, we need to check the main property of eigenvector: Hx = $\lambda$x:
+<<>>=
+for(i in 1:ncol(matrix_X)){
+  v <- matrix_H %*% matrix_X[,i] / matrix_X[,i]
+  cat("Multiplicators are:",v,'\n')
+}
+@
+This means that all 3 vectors of X are eigenvecotrs of H with corresponding eigenvalue $\lambda$ = 1
+
+\section{Task 4}
+Hilbert 6 by 6 matrix:
+<<>>=
+Hilbert_6 <- Hilbert2(6)
+Hilbert_6
+@
+It's eigenvalues and eigenvectors are:
+<<>>=
+eigen(Hilbert_6)
+@
+Inverse matrix is:
+<<>>=
+Hilbert_6_inverse <- solve(Hilbert_6)
+@
+
+Let's find inverse eigenvalues and vectors:
+<<>>=
+eigen(Hilbert_6_inverse)$values
+eigen(Hilbert_6)$values
+rev(1 / eigen(Hilbert_6_inverse)$values)
+@
+Check that eigenvalues of $A^{-1}$ = $\lambda$
+<<>>=
+all.equal(eigen(Hilbert_6)$values, rev(1 / eigen(Hilbert_6_inverse)$values))
+@
+The result is expected, since:\\
+$A\mathbf{v} = \lambda\mathbf{v} \implies A^{-1}A\mathbf{v} = \lambda A^{-1}\mathbf{v}\implies A^{-1}\mathbf{v} = \frac{1}{\lambda}\mathbf{v}$
+
+
+\section{Task 5}
+<<>>=
+Circulant <- function(x) {
+  n <- length(x)
+  matrix_C <- matrix(NA, n, n)
+  for (i in 1:n) {
+    matrix_C[i, ] <- c(x[-(1:(n + 1 - i))], x[1:(n + 1 - i)])
+    }
+  return(matrix_C)
+}
+mat_P <- Circulant(c(0.1, 0.2, 0.3, 0.4))
+@
+\subsection{a}
+<<>>=
+rowSums(mat_P)
+@
+As we can see, the sums are equal to 1.
+
+\subsection{b}
+<<>>=
+for(i in c(2, 3, 5, 10)){
+print(Reduce("%*%" , rep(list(mat_P), i)))
+}
+@
+Yes, there is a pattern. All the elements tend to converge to 0.25. That is the sum of any row of circulant matrix divided by number of rows/columns
+
+\subsection{c}
+<<>>=
+solve(t(mat_P) - diag(4), cbind(rep(0, 4)), tol = 1e-17)
+eigen(t(mat_P))
+@
+Both these results and the fact that we are searching basically for such eigenvector of $P^T$ which has eigen value 1. That is the one which has all his elemets equal to each other. $P^T x = \lambda x$, where $\lambda = 1$.
+Therefore, our vector $x$ of dim $4\times 1$ will have 4 elements $=$ 0.25.
+<<>>=
+all.equal(t(mat_P) %*% cbind(rep(0.25, 4)), cbind(rep(0.25, 4)))
+@
+\noindent
+The pattern is following: Elements of vector x equal to the elemets to which matrix $P ^ {10}$ converges.
+
+\setcounter{section}{7}
+
+
+\section{Task 8}
+Supposing element in 1st row 2d col is zero (similiar to ex 22). If not the algorithm is basically the same. \\
+To solve a partitioned system of equations of such form, one can easily find x and then y. \\
+$x = L_1 ^ {-1} b \space \Rightarrow \space y = L_2 ^ {-1} (c - B x) = L_2 ^ {-1} (c - B L_1 ^ {-1} b) $
+<<>>=
+# x <- solve(L_1, b)
+# y <- solve(L_2, c - B * x)
+@
+
+
+\section{Task 9}
+\subsection{a}
+For every elementary matrix if we apply r and then $r^{-1}$ (reversed operation), we will return to original elementary matrix. As our matrix is elementary it is always invertible. Also its determinant equals to 1.
+
+
+\subsection{b}
+\begin{align*}
+M_k
+=
+\begin{bmatrix}
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix} \quad \quad \ \ \
+\begin{matrix}
+0 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 0
+\end{matrix} & \\
+\begin{matrix}
+0 & \cdots & -\mu_{k+1} \\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & -\mu_{n}
+\end{matrix} \quad
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix}
+\end{bmatrix}
+\end{align*}
+
+\begin{align*}
+I-m_{k}e_{k}' = 
+\begin{bmatrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{bmatrix}
+-  
+\begin{bmatrix}
+0\\ 
+\vdots \\ 
+0\\
+\mu_{k+1} \\
+\vdots \\
+\mu_{n}
+\end{bmatrix}
+\begin{bmatrix}
+0 & \cdots & e_{k} & \cdots & 0\\ 
+& & \text{where } e_{k} = 1 &
+\end{bmatrix}
+\end{align*}
+
+\begin{align*}
+ = 
+\begin{bmatrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{bmatrix}
+- 
+\begin{bmatrix}
+\begin{matrix}
+0 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 0
+\end{matrix} \quad \quad \ \ \
+\begin{matrix}
+0 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 0
+\end{matrix} & \\
+\begin{matrix}
+0 & \cdots & -\mu_{k+1} \\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & -\mu_{n}
+\end{matrix} \quad
+\begin{matrix}
+0 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 0
+\end{matrix}
+\end{bmatrix}
+= 
+\begin{bmatrix}
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix} \quad \quad \ \ \
+\begin{matrix}
+0 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 0
+\end{matrix} & \\
+\begin{matrix}
+0 & \cdots & -\mu_{k+1} \\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & -\mu_{n}
+\end{matrix} \quad
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix}
+\end{bmatrix}
+=
+M_k
+\end{align*}
+
+
+\subsection{c}
+To prove that $M_{k}^{-1} = I + m_{k}e_{k}'$ we need to check that $M_{k}^{-1}M_{k} = I$
+
+\begin{align*}
+M_{k}^{-1}M_{k} =
+\begin{bmatrix}
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix} \quad \quad \ \ \
+\begin{matrix}
+0 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 0
+\end{matrix} & \\
+\begin{matrix}
+0 & \cdots & -\mu_{k+1} \\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & -\mu_{n}
+\end{matrix} \quad
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix}
+\end{bmatrix}
+\begin{bmatrix}
+\begin{matrix}
+1 & \cdots & \quad0\\ 
+\vdots & \ddots & \quad\vdots\\ 
+0 & \cdots & \quad1
+\end{matrix} \quad \quad \ \ \
+\begin{matrix}
+0 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 0
+\end{matrix} & \\
+\begin{matrix}
+0 & \cdots & \mu_{k+1} \\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & \mu_{n}
+\end{matrix} \quad
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix}
+\end{bmatrix} 
+\end{align*}
+
+Actually it is crear from the block structure:\\
+$
+\begin{bmatrix}
+I & 0\\
+-M & I
+\end{bmatrix}
+\begin{bmatrix}
+I & 0\\
+M & I
+\end{bmatrix}
+=
+\begin{bmatrix}
+I & 0\\
+-M + M & I
+\end{bmatrix}
+=
+\begin{bmatrix}
+I & 0\\
+0 & I
+\end{bmatrix}
+$
+
+
+\subsection{d}
+
+\begin{align*}
+M_k M_l
+=
+\begin{bmatrix}
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix} \quad \quad \ \ \
+\begin{matrix}
+0 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 0
+\end{matrix} & \\
+\begin{matrix}
+0 & \cdots & -\mu_{k+1} \\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & -\mu_{n}
+\end{matrix} \quad
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix}
+\end{bmatrix}
+\begin{bmatrix}
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix} \quad \quad \ \ \
+\begin{matrix}
+0 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 0
+\end{matrix} & \\
+\begin{matrix}
+0 & \cdots & -\mu_{l} \\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & -\mu_{n}
+\end{matrix} \quad
+\begin{matrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{matrix}
+\end{bmatrix}
+\end{align*}
+
+Let's have a look at the block structure:\\
+$
+\begin{bmatrix}
+I & 0\\
+-M_{k} & I
+\end{bmatrix}
+\begin{bmatrix}
+I & 0\\
+-M_{l} & I
+\end{bmatrix}
+=
+\begin{bmatrix}
+I & 0\\
+-M_{k} - M_{l} & I
+\end{bmatrix}
+$
+This can be represented as:
+\begin{align*}
+\begin{bmatrix}
+1 & \cdots & 0\\ 
+\vdots & \ddots & \vdots\\ 
+0 & \cdots & 1
+\end{bmatrix}
+-  
+\begin{bmatrix}
+0\\ 
+\vdots \\ 
+0\\
+\mu_{k+1} \\
+\vdots \\
+\mu_{n}
+\end{bmatrix}
+\begin{bmatrix}
+0 & \cdots & e_{k} & \cdots & 0\\ 
+& & \text{where } e_{k} = 1 &
+\end{bmatrix} -
+\end{align*} 
+\begin{align*}
+-
+\begin{bmatrix}
+0\\ 
+\vdots \\ 
+0\\
+\mu_{l} \\
+\vdots \\
+\mu_{n}
+\end{bmatrix}
+\begin{bmatrix}
+0 & \cdots & e_{l} & \cdots & 0\\ 
+& & \text{where } e_{l} = 1 &
+\end{bmatrix}
+= I - m_{k}e_{k}' - m_{l}e_{l}'
+\end{align*}
+
+
+
+\section{Task 10}
+First of all, let's compute determinant of A:\\
+$det(A) = 0*0-1*1 = -1$\\
+\\
+If $A = LU$, then $a_{11} = l_{11}*u_{11}$.\\
+Since $a_{11} = 0$, then $l_{11}=0$ or $u_{11}=0$.\\
+Therefore, $det(L)=0$ or $det(U)=0$ (since determinant of a lower or upper triangular matrix equals product of the elements of its main diagonal, and here the first element of the main diagonal of at least one matrix of L and U is zero).\\
+So, $det(A)=det(LU)=det(L)*det(U)=0$.\\
+However, it was calculated before, det(A) = -1.\\
+Therefore, we have a contradiction.\\
+So matrix A has no LU factorization.\\
+Q.E.D.\\	
+	
+	
+\section{Exercise 11}
+a) Show that if $n \times n$ matrix A has rank 1, then there are non-zero n-vectors u and v such that $A = uv^{t}$.\\
+Let $A$ be a $n \times n$ matrix with rank 1. Therefore, it is equivalent to the form:\\
+\\
+$\begin{pmatrix}
+  v_{1} & v_{2} & \cdots & v_{n} \\
+  0 & 0 & \cdots & 0 \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  0 & 0 & \cdots & 0 
+ \end{pmatrix}$\\
+ \\
+ where at least one of the numbers $v_{1}...v_{n}$ must be non-zero. This matrix is in turn equivalent to:\\
+ \\
+$\begin{pmatrix}
+  u_{1}\cdot v_{1} & u_{1}\cdot v_{2} & \cdots & u_{1}\cdot v_{n} \\
+  u_{2}\cdot v_{1} & u_{2}\cdot v_{2} & \cdots & u_{2}\cdot v_{n} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  u_{n}\cdot v_{1} & u_{n}\cdot v_{2} & \cdots & u_{n}\cdot v_{n} 
+ \end{pmatrix} 
+ $
+\\
+\\
+where at least one of the numbers $u_{1}...u_{n}$ must be non-zero.\\
+Therefore, the latter matrix can be expressed as an outer product $uv^{t}$ of non-zero n-vectors $u$ and $v$:\\
+\\
+$\begin{pmatrix}
+ u_{1} \\
+ u_{2} \\
+ \vdots \\ 
+ u_{n}
+\end{pmatrix}
+ \begin{pmatrix}
+v_{1} & v_{2} &\cdots & v_{n}\\  
+\end{pmatrix}$\\
+\\
+So, direct statement is proved.\\
+\\
+b) Show that if there are non-zero n-vectors $u$ and $v$ such that $A = uv^{t}$, then $n\times n$ matrix A has rank 1.\\
+Let $u$ and $v$ be non-zero n-vectors such that $A = uv^{t}$.\\
+Let's calculate $A = uv^{t}$:\\
+\\
+$\begin{pmatrix}
+ u_{1} \\
+ u_{2} \\
+ \vdots \\ 
+ u_{n}
+\end{pmatrix}
+ \begin{pmatrix}
+v_{1} & v_{2} &\cdots & v_{n}\\  
+\end{pmatrix}$
+=
+$\begin{pmatrix}
+  u_{1}\cdot v_{1} & u_{1}\cdot v_{2} & \cdots & u_{1}\cdot v_{n} \\
+  u_{2}\cdot v_{1} & u_{2}\cdot v_{2} & \cdots & u_{2}\cdot v_{n} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  u_{n}\cdot v_{1} & u_{n}\cdot v_{2} & \cdots & u_{n}\cdot v_{n} 
+ \end{pmatrix} 
+ $
+\\
+\\
+This is an $n \times n$ matrix, and its every row is a multiple (and therefore linear combination) of non-zero n-vector $v$. Since we have here all possible combinations of u and v and both vectors are non-zero, exists at least one element that is different from zero. Hence, the rank of the matrix must be 1.\\
+So, converse statement is proved.\\
+Q.E.D.\\	
+
+
+\section{Task 12}
+$A = I - uv'$ - elementary matrix.
+\subsection{Task (a)}
+If A is elementary, what condition on u and v ensures that A is non-singular?
+To be non-singular $det(A) \neq 0$
+Considering task 24:
+\begin{equation}\label{1}
+det(I + uv') = 1 + v'u
+\end{equation}
+Now using (1) let's find $det(A = I - uv' )$:
+\begin{equation}\label{2}
+det(A = I - uv' ) = 1 - v'u
+\end{equation}
+This gives the condition:
+\begin{equation}\label{3}
+v'u \neq 1
+\end{equation}
+
+\subsection{Task (b)}
+Prove that $A^{-1}$ is also elementary:
+To prove this fact let's use the Sherman-Morrison formula:
+\begin{equation}\label{4}
+(A-uv')^{-1} = A^{-1} + A^{-1}u(1-v'A^{-1}u)^{-1}v'A^{-1}
+\end{equation}
+Applying this gives us:
+\begin{equation}\label{5}
+(I-uv')^{-1} = I^{-1} + I^{-1}u(1-v'I^{-1}u)^{-1}v'I^{-1} = I - \frac{1}{v'u-1} uv'
+\end{equation} 
+So  $A^{-1} = I - \sigma uv'$, where $\sigma = \frac{1}{v'u-1}$. It is also elementary.
+
+\subsection{Task (c)}
+Are elementary elimination matrices elementary?
+Yes, they are. There are 3 cases.
+\subsubsection{Case 1: Row-switching transformations}
+A is the matrix produced by exchanging row i and row j of A.
+To have this type of transformation using 	$A = (I-uv')$, we need to choose uv' such that:
+$\begin{cases}
+	u_{i}v_{i} = 1 \\
+	u_{j}v_{j} = 1 \\
+	u_{i}v_{j} = -1 \\
+	u_{j}v_{i} = -1 \\
+\end{cases}$
+Assuming that i and j are switched. All others elements of u and v = 0. This gives us next result for $\sigma$ (only 2 sums are different from 0):
+\begin{equation}\label{6}
+\sigma = \frac{1}{v'u-1} = \frac{1}{v_{i}u_{i} + v_{j}u_{j}-1} = 1
+\end{equation}
+
+\subsubsection{Case 2: Row-multiplying transformations}
+The corresponding elementary matrix is a diagonal matrix, with diagonal entries 1 everywhere except in the i th position, where it is m:
+To have such structure $v'u$ must have 1-m element of i th row, all others are zeros. So:
+$\begin{cases}
+u_{i}v_{i} = 1-m \\
+\sigma = \frac{1}{\sum u_{k}v_{k}-1} = -\frac{1}{m}
+\end{cases}$
+\subsubsection{Case 3: Row-addition transformations}
+The corresponding elementary matrix is the identity matrix but with an m in the (i,j) position
+$\begin{cases}
+u_{i}v_{j} = -m \\
+\sigma = \frac{1}{\sum u_{k}v_{k}-1} = -1
+\end{cases}$
+Since $\sum u_{k}v_{k} = 0$
+
+	
+
+\section{Exercise 13}
+If we mulitply the left-hand side of the formula from any side by matrix $ A- uv^{t} $, we get the identity matrix, since it is multiplication of inverse matrices:\\
+$ (A- uv^{t})(A- uv^{t})^{-1}=I$\\
+$ (A- uv^{t})^{-1}(A- uv^{t})=I$\\
+To prove that the formula is true, we must verify that the right-hand side of the formula becomes identity matrix if it is multiplied by $ A- uv^{t} $  both from the left side and from the right side.\\
+a) multiplication from the left:\\
+\\
+$= (A- uv^{t})(A^{-1} + \frac{A^{-1}uv^{t}A^{-1}}{1-v^{t}A^{-1}u)})$\\
+\\
+$= AA^{-1}- uv^{t}A^{-1} + \frac{AA^{-1}uv^{t}A^{-1}-uv^{t}A^{-1}uv^{t}A^{-1}}{1-v^{t}A^{-1}u}$\\
+\\
+$= I- uv^{t}A^{-1} + \frac{uv^{t}A^{-1}-uv^{t}A^{-1}uv^{t}A^{-1}}{1-v^{t}A^{-1}u}$\\
+\\
+$= I- uv^{t}A^{-1} + \frac{(u-uv^{t}A^{-1}u)v^{t}A^{-1}}{1-v^{t}A^{-1}u}$\\
+\\
+$= I- uv^{t}A^{-1} + \frac{u(1-v^{t}A^{-1}u)v^{t}A^{-1}}{1-v^{t}A^{-1}u}$\\
+\\
+$(1-v^{t}A^{-1}u)$ can be cancelled out since it is a scalar. Therefore:\\
+\\
+$= I- uv^{t}A^{-1} + uv^{t}A^{-1}$\\
+\\
+$= I$\\
+\\
+b) multiplication from the right:\\
+\\
+$= (A^{-1} + \frac{A^{-1}uv^{t}A^{-1}}{1-v^{t}A^{-1}u)})(A- uv^{t})$\\
+\\
+$= A^{-1}A - A^{-1}uv^{t} + \frac{A^{-1}uv^{t}A^{-1}A-A^{-1}uv^{t}A^{-1}uv^{t}}{1-v^{t}A^{-1}u}$\\
+\\
+$= I - A^{-1}uv^{t} + \frac{A^{-1}uv^{t}-A^{-1}uv^{t}A^{-1}uv^{t}}{1-v^{t}A^{-1}u}$\\
+\\
+$= I - A^{-1}uv^{t} + \frac{(A^{-1}u-A^{-1}uv^{t}A^{-1}u)v^{t}}{1-v^{t}A^{-1}u}$\\
+\\
+$= I - A^{-1}uv^{t} + \frac{A^{-1}u(1-v^{t}A^{-1}u)v^{t}}{1-v^{t}A^{-1}u}$\\
+\\
+$(1-v^{t}A^{-1}u)$ can be cancelled out since it is a scalar. Therefore:\\
+\\
+$= I - A^{-1}uv^{t} +  A^{-1}uv^{t}$\\
+\\
+$= I$\\
+\\
+Q.E.D.\\
+
+
+\section{Task 14}
+We need to prove that:
+\begin{equation}\label{1}
+(A - UV')^{-1} = A^{-1} + A^{-1}U(I - U'A^{-1}U)^{-1}V'A^{-1} 
+\end{equation}
+To do this let's multiply both sides by (A - UV')
+LHS gives us I. So, let's prove that RHS gives I too.
+\begin{align*}
+ (A - UV')\times(A^{-1} + A^{-1}U(I - U'A^{-1}U)^{-1}V'A^{-1}) = 
+\end{align*}
+Open the brackets and use $AA^{-1} = I$: 
+\begin{align*}
+ = I + U(I - V'A^{-1}U)^{-1}V'A^{-1} - UV'A^{-1}-UV'A^{-1}U(I - V'A^{-1}U)^{-1}V'A^{-1}=
+\end{align*}
+regroup 1 + 3 and 2 + 4 and factor out:
+\begin{align*}
+ =I- UV'A^{-1} + U(I - V'A^{-1}U)(I - V'A^{-1}U)^{-1}V'A^{-1}=
+\end{align*}
+Finally, we have:
+\begin{align*}
+  =I- UV'A^{-1} + UV'A^{-1} = I
+\end{align*}
+Q.E.D.
+
+\section{Task 22}
+\subsection{Task (a)}
+Let's prove that if $\lambda$ is eigenvalue of $A_{11}$ than $\lambda$ is eigenvalue of A with corresponding eigenvector $(u',0')'$.
+\begin{equation}\label{1}
+	\begin{pmatrix}
+		A_{11} & A_{12}	\\
+		0 	   & A_{12}
+	\end{pmatrix}
+	\begin{pmatrix}
+		u	\\
+		0
+	\end{pmatrix}
+	=
+	\begin{pmatrix}
+	A_{11}u	\\
+	0 
+	\end{pmatrix}
+		=
+	\begin{pmatrix}
+	\lambda u	\\
+	0 
+	\end{pmatrix}
+	= \lambda
+	\begin{pmatrix}
+	u	\\
+	0 
+	\end{pmatrix}	
+\end{equation}
+
+$\begin{pmatrix}
+	u	\\
+	0 
+\end{pmatrix} \neq 0 $
+, since $u \neq 0$ (it is eigenvector of $A_{11}$). Hence, $\lambda$ is eigenvalue of A.
+
+\subsection{Task (b)}
+Let's prove that $det(A-\lambda I) = 0$. This will prove that $\lambda$ is an eigenvalue of A.
+Take into consideration that
+$
+\begin{vmatrix}
+A_{22} - \lambda I
+\end{vmatrix}
+= 0
+$
+since $\lambda$ is eigenvalue of $A_{22}$
+\begin{equation}\label{2}
+	\begin{vmatrix}
+	A - \lambda I
+	\end{vmatrix}
+	=
+	\begin{vmatrix}
+	A_{11} - \lambda I & A_{12} \\
+	0 				   & A_{22} - \lambda I
+	\end{vmatrix}
+	=
+	\begin{vmatrix}
+	A_{11} - \lambda I
+	\end{vmatrix}
+	\begin{vmatrix}
+	A_{22} - \lambda I
+	\end{vmatrix}
+	= 0
+\end{equation}
+
+\subsection{Task(c)}
+We are given that:
+\begin{equation}\label{3}
+	\begin{pmatrix}
+		A_{11} & A_{12}	\\
+		0 	   & A_{12}
+	\end{pmatrix}
+	\begin{pmatrix}
+	u	\\
+	v
+	\end{pmatrix}
+	=
+	\lambda
+	\begin{pmatrix}	u	\\
+	v
+	\end{pmatrix}	
+\end{equation}
+
+After multiplication we have a system:
+\begin{equation}\label{4}
+\begin{cases}
+	A_{11}u + A_{12}v = \lambda u \\
+	A_{22}v = \lambda v
+\end{cases}
+\end{equation}
+
+This system gives us 2 cases:
+\begin{enumerate}
+	\item $ v \neq 0 $
+	Then from $A_{22}v = \lambda v$ we have that $\lambda$ is eigenvalue of $A_{22}$ with corresponding  eigenvector v.
+	\item $ v = 0 $
+	Than from the 1 equation we have $A_{11}u = \lambda u$, hence $\lambda$ is eigenvalue of $A_{11}$ with corresponding  eigenvector u.
+\end{enumerate}
+\subsection{Task(d)}
+From sections (a) and (b) follows that if $\lambda$ is eigenvalue of $A_{11}$ or $A_{22}$ than $\lambda$ is eigenvalue of A. From section (c) follows that if  $\lambda$ is eigenvalue of A  than $\lambda$ is eigenvalue of $A_{11}$ or $A_{22}$. This proves required statement.
+
+
+
+\section{Task 24}
+We need to prove:
+\begin{equation}\label{1}
+det(I + uv') = 1 + u'v
+\end{equation}
+In our case A = I, so the required result follows from the equality:
+\begin{equation}\label{2}
+\begin{pmatrix}
+	I  & 0	\\
+	V' & 1
+\end{pmatrix}
+\begin{pmatrix}
+I + uv' & u	\\
+0 		& 1
+\end{pmatrix}
+\begin{pmatrix}
+I & 0	\\
+-v' & 1
+\end{pmatrix}
+=
+\begin{pmatrix}
+I & u	\\
+0 & 1 + v'u
+\end{pmatrix}
+\end{equation}
+The determinant of the left hand side is the product of the determinants of the three matrices. Since the first and third matrix are triangle matrices with unit diagonal, their determinants are just 1. The determinant of the middle matrix is our desired value. The determinant of the right hand side is simply $(1 + v'u)$. So we have the result:
+\begin{equation}\label{3}
+det(I + uv') = (1 + v'u)
+\end{equation}
+
+
+
+\section{Task 25}
+The Householder transformation is a linear transformation that describes a reflection about a plane or hyperplane containing the origin.
+
+Let's prove that eigenvalues of the Householder transformation are -1 and 1.
+To show it we need to mention 2 points:
+\begin{itemize}
+	\item N-dimensional space has n basic orthogonal vectors
+	\item If x and y orthogonal x'y = 0
+\end{itemize}
+Using these facts let's apply Householder transformation to n-1 orthogonal vectors $x$:
+\begin{equation}\label{1}
+Hx = x - 2\frac{u^tx}{u^tu}u
+\end{equation}
+Using point (2) $Hx = x$ for all n-1 vectors, hence $\lambda$ = 1. This $\lambda$ repeats n-1 times.
+The last eigenvalue can be received from the other fact. Let's apply Householder transformation to the same vector. In this case we have:
+\begin{equation}\label{2}
+	Hu = u - 2\frac{u^tu}{u^tu}u = -u
+\end{equation}
+This gives us the last eigenvalue $\lambda = -1$. So as a result, Householder transformation has two different eigenvalues: -1 and 1
+
+	
+	
+\section{Task 27}
+
+
+Show that $(-1)^{n}p(z)$ is the characteristic polynomial $det(C - zI)$, where C is:
+\begin{align*}
+	\mathrm{det}(C-zI_n) = \mathrm{det}
+	\begin{pmatrix}  -z &  0 & \cdots & 0 & -a_0 \\
+	1 &  -z & \cdots & 0 & -a_1 \\
+	\vdots & \ddots & \ddots & \vdots & \vdots  \\
+	0 &  0 & \cdots & 1 & -a_{n-1}-z
+	\end{pmatrix} =
+\end{align*}
+\begin{align*}
+= -z \cdot \mathrm{det} \;
+\begin{pmatrix}
+-z &  0 & \cdots & 0 & -a_1 \\
+1 &  -z & \cdots & 0 & -a_2 \\
+\vdots & \ddots & \ddots & \vdots & \vdots  \\
+0 &  0 & \cdots & 1 & -a_{n-1}-z \end{pmatrix} +
+(-1)^{1+n} (-a_0) \cdot \mathrm{det} \begin{pmatrix} 1 &  -z & 0 & \cdots & 0 \\
+0 & 1 & -z & \cdots & 0 \\
+\vdots & \vdots & \ddots & \vdots & \vdots  \\
+0 &  0 & \cdots & 0 & 1 &
+\end{pmatrix} = 
+\end{align*}
+= [the second matrix's determinant is the product of its diagonals = 1 (since it's upper-triangular)] =
+\begin{align*}
+= -z \cdot \mathrm{det} \;
+\begin{pmatrix}
+-z &  0 & \cdots & 0 & -a_1 \\
+1 &  -z & \cdots & 0 & -a_2 \\
+\vdots & \ddots & \ddots & \vdots & \vdots  \\
+0 &  0 & \cdots & 1 & -a_{n-1}-z \end{pmatrix} +
+(-1)^{n} a_0 =
+\end{align*}
+\begin{align*}
+= -z \cdot ( -z \cdot \mathrm{det} \;
+\begin{pmatrix}
+-z &  0 & \cdots & 0 & -a_2 \\
+1 &  -z & \cdots & 0 & -a_3 \\
+\vdots & \ddots & \ddots & \vdots & \vdots  \\
+0 &  0 & \cdots & 1 & -a_{n-1}-z \end{pmatrix} + (-1)^{n-1} a_1 ) +
+(-1)^{n} a_0 =
+\end{align*}
+= [Using the same approach we can replace the determinant on the left until we finally have:] =
+\begin{align*}
+ = (-1)^{n}p(z)
+\end{align*}
+
+\subsection{Calculations}
+If $ p(z) = 24 - 40x + 35z^{2} - 13z^{3} + z^{4} $
+<<hide-par, echo=FALSE, warning = FALSE, message = FALSE, out.width = "0.8\\textwidth", out.height="0.8\\textwidth", fig.align='center'>>=
+C <- matrix (c(0,1,0,0,0,0,1,0,0,0,0,1,-24, 40, -35, 13) , nrow = 4, ncol = 4)
+eval <- sort(eigen(C)$values)
+roots <- sort(polyroot(c(24,-40,35,-13,1)))
+@
+The results for both of the calculations are the same and equal to:
+\begin{enumerate}
+	\item 0.6839038-0.9409769i
+	\item 0.6839038+0.9409769i
+	\item 1.8047699+0.0000000i
+	\item 9.8274224-0.0000000i
+\end{enumerate}
+
+
+\section{Task 29}
+<<>>=
+vec <- function(A)
+{
+  elements <- c()
+  for(j in 1:ncol(A))
+  {
+    for (i in 1:nrow(A))
+    {
+      elements <- c(elements, A[i,j])
+    }
+  }
+  return(elements)
+}
+
+A <- matrix (c(1,2,3,4,5,6,7,8,9) , nrow = 3, ncol = 3)
+vec(A)
+B <- matrix (c(1,2,3,4,5,6,7,8,9,10) , nrow = 5, ncol = 2)
+vec(B)
+@
+
+
+\section{Task 30}
+<<>>=
+vech <- function(A)
+{
+  elements <- c()
+  for(j in 1:ncol(A))
+  {
+    for (i in j:nrow(A))
+    {
+      elements <- c(elements, A[i,j])
+    }
+  }
+  return(elements)
+}
+
+A <- matrix (c(3,7,8,7,10,9,8,9,12) , nrow = 3, ncol = 3)
+vech(A)
+@
+
+
+\end{document}

@@ -1,0 +1,91 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{listings}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\author{Team 8}
+\title{Statistics 2 Pi}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+
+	\maketitle
+	\tableofcontents
+
+\newpage
+
+\section{Task 95}
+\subsection*{a) Fitting Weibull distribution}
+Using the same approach as in Task 36, we get the following method of percentiles (based on quartiles) estimations for the 2-parameter Weibull distribution in the form:
+$$F_{\lambda,\beta}(x) = \begin{cases} 1 - e^{-(\frac{x}{\lambda})^\beta} \, ,\,x \geq 0 \\ 0 \,,\, x < 0 \end{cases} 
+$$
+with $\beta >0$ is the shape and $\lambda > 0$ is the scale parameter:\\
+
+<<>>==
+vandal <- c(38, 56, 77, 110, 112, 138, 152, 168, 188, 210, 228, 241, 252, 273, 283, 288, 291, 299, 305, 317, 321, 356, 374, 422, 485, 527, 529, 559, 567, 656)
+lenv <- length(vandal)
+g1_W <- 0.25
+g2_W <- 0.75
+x1_v <- quantile(vandal, probs = g1_W, na.rm = FALSE,  names = FALSE)
+x2_v <- quantile(vandal, probs = g2_W, na.rm = FALSE,  names = FALSE)
+shape_v_QME <- log(-log(1-g1_W)/-log(1-g2_W))/log(x1_v/x2_v)
+shape_v_QME
+@
+which is $\gamma$ in CDF in the form that is required in the task: $F(x|c, \gamma) = 1 - exp(-cx^{\gamma})$
+<<>>==
+scale_v_QME <- x2_v/(-log(1-g2_W))^(1/shape_v_QME)
+scale_v_QME
+@
+Let's calculate $c$ for CDF in the form that is required in the task: $F(x|c, \gamma) = 1 - exp(-cx^{\gamma})$:
+<<>>==
+c_v_QME <- scale_v_QME ^ (-shape_v_QME)
+c_v_QME
+@
+Let's compare with $fitdistrplus$:
+<<>>==
+require(fitdistrplus)
+fit.weibull <- fitdist(vandal, "weibull", method = "qme", probs = c(0.25, 0.75))
+summary(fit.weibull)
+@
+$c$ for CDF in the form that is required in the task:
+<<>>==
+unname(summary(fit.weibull)$estimate[2]^(-summary(fit.weibull)$estimate[1]))
+@
+Our results are almost the same.\\
+\newline
+\subsection*{b) Chi squared goodness-of-fit test}
+In order to perform the test, first let's calculate the actual number of observations in each interval:
+<<>>==
+border_v <- c(0, 145, 225, 310, 420)
+observed_v <- c()
+for (i in 1:length(border_v)) {
+  observed_v[i] <- length(vandal[vandal < border_v[i + 1]]) - length(vandal[vandal < border_v[i]])
+}
+observed_v
+@
+Then let's calculate the number of expected observations in each interval:
+<<>>==
+cumul_probs_W <- pweibull(border_v, shape_v_QME, scale_v_QME, lower.tail = TRUE, log.p = FALSE)
+dist_probs_W <- c()
+for (i in 2:length(border_v)) {dist_probs_W[i-1] <- cumul_probs_W[i]-cumul_probs_W[i-1]}
+estimated_W <- lenv * c(dist_probs_W, 1 - sum(dist_probs_W))
+estimated_W
+@
+And finally obtain the value of $\chi^2$ test statistic:
+<<>>==
+chi_W <- sum(((estimated_W - observed_v)^2)/estimated_W)
+chi_W
+@
+and it's p-value:
+<<>>==
+pchisq(chi_W, length(border_v) - 1 - 2, ncp = 0, lower.tail = FALSE, log.p = FALSE)
+@
+Since p-value is higher than 0.05, the null hypothesis that the data set is Weibull distibuted couldn't be rejected.
+\end{document}

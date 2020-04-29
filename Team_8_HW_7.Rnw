@@ -1,0 +1,314 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,mathtools,bm,etoolbox, amsthm, bbm}
+\usepackage{geometry}
+\usepackage{color}
+\usepackage[T1]{fontenc}
+
+\usepackage{listings}
+\usepackage{inconsolata}
+%% We used knitr.
+%% To compile with sweave, delete it and insert sweave concordance line.
+<<echo=FALSE>>=
+  options(width=60)
+
+listing <- function(x, options) {
+  paste("\\begin{lstlisting}[basicstyle=\\ttfamily,breaklines=true]\n",
+        x, "\\end{lstlisting}\n", sep = "")
+}
+knit_hooks$set(source=listing, output=listing)
+@
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+\author{Group 8}
+\title{Statistics 1 Unit 6}
+\begin{document}
+
+
+
+	\maketitle
+	\tableofcontents
+
+\newpage
+\section{Task 96}
+
+\subsection{a)}
+The d-dimensional independence copula $C_0$ is the CDF of d \textbf{mutually independent Uniform(0,1)} random variables.
+Thus, $C_{0}\left( u_{1},\ldots ,u_{d}\right) = u_{1}\dotsm u_{d}$ \\
+\subsection{b)}
+The co-monotonicity copula $C_{+}$ is the CDF of $U = (U, . . . , U)$ \\ 
+Thus, $C_{+}\left( u_{1},\ldots ,u_{d}\right) = P\left( U\leq u_{1},\ldots ,U\leq u_{d}\right) = P\left\{ U\leq \min \left( u_{1},\ldots ,u_{d}\right) \right\} = \min \left( u_{1},\ldots ,u_{d}\right) $ \\
+\subsection{c)}
+The two-dimensional counter-monotonicity copula $C_{-}$ is CDF of $(U, 1-U)$ \\
+Thus, $C_{-} (u_1, u_2) = P(U \leq u_1, 1-U \leq u_2) = P(1-u_2 \leq U \leq u_1) = \max (u_1 + u_2 - 1, 0) $ \\
+The last equation holds, since, if $1-u_2 > u_1$, then ${1-u_2 \geq U \leq u_1}$ is impossible $\Rightarrow$ the probability $= 0$. Otherwise, the probability is the length of the interval $(1-u_2, u_1)$, which is $u_1 + u_2 -1$
+\newpage
+\section{Task 97}
+\begin{proof}
+First, let's prove the RHS of the inequality: \\
+$\bigcap\limits_{1\leq j\leq d} \left\{ U_{j}\leq u_{j}\right\} \subseteq \left\{ U_{i}\leq u_{i}\right\} \forall i \in \left\{ 1,\ldots ,d\right\} \stackrel{1}{\Rightarrow} C\left( u_{1},\ldots ,u_{d}\right) \leq \min \left\{ u_{1},\ldots ,u_{d}\right\} $ \\
+Now let's prove the LHS of the inequality: \\
+\begin{align*}
+$C\left( u_{1},\ldots ,u_{d}\right) = & P\left( \bigcap\limits_{1\leq i\leq d} \left\{ U_{i}\leq u_{i}\right\} \right) \\
+= &  1 - P\left( \bigcup\limits_{1\leq i\leq d} \left\{ U_{i} > u_{i}\right\} \right) \\
+ \geq & 1-\sum ^{d}_{i=1}P\left( U_{i} >u_{i}\right) \stackrel{2}{=} 1-d+\sum ^{d}_{i=1}u_{i} \\$
+\end{align*}
+$\Rightarrow C\left( u_{1},\ldots ,u_{d}\right) \geq \max \left\{ \sum ^{d}_{i=1}u_{i}+1-d,0\right\} $ \\
+Combining RHS and LHS we get: \\ $\max \left\{ \sum ^{d}_{i=1}u_{i}+1-d,0\right\} \leq C\left( u_{1},\ldots ,u_{d}\right) \leq \min \left\{ u_{1},\ldots ,u_{d}\right\} $
+\end{proof}
+1. $P\left(\bigcap\limits_{1\leq j\leq d} \left\{ U_{j}\leq u_{j}\right\}\right) \leq P\left(\left\{ U_{i}\leq u_{i}\right\}\right) \forall i \in \left\{ 1,\ldots ,d\right\}$ \\
+2. $\sum ^{d}_{i=1}P\left( U_{i} >u_{i}\right) = \sum ^{d}_{i=1} \left(1 - P\left( U_{i} \leq u_{i}\right)\right)$
+
+\newpage
+\section{Task 98}
+First let's compute marginal distributions:
+\begin{center}
+    \begin{tabular}{| l | l | l | l |}
+    \hline
+   $X_1 \downarrow X_2 \rightarrow$ & 0 & 1 & $P(X_1 = x) \downarrow$ \\ \hline
+    0 & $\frac{1}{8}$ & $\frac{2}{8}$ & $\frac{3}{8}$     \\ \hline
+    1 & $\frac{2}{8}$ & $\frac{3}{8}$ & $\frac{5}{8}$ \\ \hline
+    $P(X_2 = x) \rightarrow $ & $\frac{3}{8}$ & $\frac{5}{8}$ & 1 \\
+    \hline
+    \end{tabular}
+\end{center}
+Therefore, $P(X_1 = 0) = P(X_2 = 0) = \frac{3}{8}$ and marginal distributions $F_1$ of $X_1$ and $F_2$ of $X_2$ are the same. From Sklar's Theorem it is known that:
+\[ P(X_1 \leq x, X_2 \leq x) = C (P(X_1 \leq x), P(X_2 \leq x)) \]
+for all $x_1$, $x_2$ and some copula $C$. Since $Ran F_1 = Ran F_2 = \{ 0, \frac{3}{8}, 1 \}$, the
+only constraint on $C$ is that $C(\frac{3}{8}, \frac{3}{8}) = \frac{1}{8}$. So, any copula fulfilling this constraint is a copula of $(X_1,X_2)$, and there are infinitely many such copulas.
+
+\newpage
+\section{Task 99}
+\subsection{a)}
+\begin{proof}
+$P\left( \max \left( X,Y\right) \leq t\right) = P\left( X\leq t,Y\leq t\right) \stackrel{1}{=} C\left( F_{x}\left( t\right) ,F_{y}\left( t\right) \right) $
+\end{proof}
+
+\subsection{b)}
+\begin{proof}
+$P\left( \min \left( X,Y\right) \leq t \right) =  P\left( X\leq t\cup Y\leq t\right) = P\left( X\leq t\right) +P\left( Y \leq t\right) - P\left( X\leq t \cap Y\leq t\right) \stackrel{1}{=} F_{x}\left( t\right) +F_{y}\left( t\right) - C\left( F_{x}\left( t\right) ,F_{y}\left( t\right) \right)$
+\end{proof}
+1. Use Sklar's Theorem: \\
+$F\left( x_{1},\ldots ,x_{d}\right) = P\left( X_{1}\leq x_{1},\ldots ,X_{d}\leq x_{d}\right) = C\left( F_{1}\left( x_{1}\right) ,\ldots ,F_{d}\left( x_{d}\right) \right)$
+
+
+\section{Task 102}
+
+Please see this Task on separate pdf file, since to whatever reason its content was out of border here.
+
+\newpage
+\section{Task 103}
+Let, $X_1 \sim N(0,1), X_2 \sim N(0,1)$ and $\rho (X_1,X_2) = 0$.\\
+Model A: $X_1$ and $X_2$ are independent.\\
+Model B: $(X_1, X_2) = (Z, \epsilon Z)$ where $Z \sim N(0,1)$ and $\epsilon$ takes the values 1 and -1 with
+probabilties 1/2 and is independent of Z.\\
+\subsection{ a)}
+Verification that for model B we have standard normal margins and zero correlation:\\
+$X_1 \sim N(0,1)$ as given.
+Let's prove that $X_2 \sim N(0,1):$
+\[ = F_{X_2} (x) = P(X_2 \le x) = P(\epsilon  Z \le x) = P(\epsilon = 1)P(Z \le x) + P(\epsilon = -1) P(-Z \le x) \]
+\[ = 1/2 \Phi _Z (x) + 1/2 P(Z \ge -x) =1/2 \Phi _Z (x)+ 1/2 (1- P(Z \le -x) = 1/2 \Phi _Z (x) + 1/2 (1- \Phi _Z (-x)) \]
+\[ = 1/2 \Phi _Z (x) + 1/2 (1- (1- \Phi _Z (x))) = 1/2 \Phi _Z (x) + 1/2 \Phi _Z (x) = \Phi _Z (x).\]
+\newline
+Let's prove that $\rho (X_1,X_2) = 0$.\\
+Preliminary step:\\
+\[ E(\epsilon ) = 1 P(\epsilon  = 1) + (- 1) P(\epsilon  = -1) = 1/2 + (- 1/2) = 0. \]
+It follows that
+\[ E(\epsilon ) = 0. \]\\
+In addition, if $T,R$ are independent, then $g(T)$ and $f(R)$ are independent as well. Thus $\epsilon$ and $Z^2$ are independent. Therefore:
+\[ \rho (X_1,X_2) = \frac{Cov(X_1,X_2)}{\sigma _{X_1} \sigma _{X_2}} = \frac{Cov(X_1,X_2)}{1} = E(X_1 X_2) - E(X_1)E(X_2) \]
+\[ = E( Z \epsilon Z) - E(Z)E( \epsilon Z)  = E( \epsilon Z^2) - E(\epsilon) E(Z) E(Z) \]
+\[ = E( \epsilon ) E(Z^2) - E(\epsilon ) E(Z) E(Z) = 0.\] \\
+\subsection{ b)}
+\[ C(u_{1}, u_{2}) = C(F_{X_{1}}(x_1), F_{X_{2}}(x_2)) = P(X_1 \le x_1, X_2 \le x_2) = P( Z \le x_1, \epsilon Z \le x_2) \]
+\[ = P(\epsilon  =1)P(Z \le x_1, 1Z \le x_2) + P(\epsilon =-1)P(Z \le x_1, -Z \le x_2) \]
+\[ = \frac{1}{2}P(Z \le x_1, Z \le x_2) + \frac{1}{2}P(Z \le x_1, Z \ge -x_2)) \]
+
+\[ = \frac{1}{2}(P(Z \le min(x_1,x_2)) +  P(-x_2 \le Z \le x_1)\]
+
+\[ = \frac{1}{2} (\Phi (min(x_1,x_2)) + max(\Phi(x_1) - \Phi(-x_2), 0)) \]
+
+\[ = \frac{1}{2} (\Phi (min(x_1,x_2)) + max(\Phi(x_1) - (1 - \Phi(x_2)), 0)) \]
+
+\[ = \frac{1}{2} (\Phi (min(x_1,x_2)) + max(\Phi(x_1) + \Phi(x_2) - 1, 0)) \]
+
+\[ = \frac{min (u_1, u_2) + max (u_1 + u_2 - 1, 0)}{2}. \]
+
+\[ = \frac{1}{2}max (u_1 + u_2 - 1, 0) + \frac{1}{2}min (u_1, u_2). \]
+\subsection{ c)}
+For multivariate normal distribution VaR is as follows:
+\[ VaR = x^t\mu + \phi ^{-1}(\alpha) \sqrt{x^{t}\Sigma x}\]
+where where $\phi ^{-1}(\alpha)$ is the $\alpha$-quantile of the standard normal distribution N(0,1) and $x$ is vector of coefficients.
+In model A $X_1$ and $X_2$ are standard normal and uncorrelated, and $\mu = 0$.
+Therefore
+\[ VaR = \phi ^{-1}(\alpha) \sqrt{(1, 1)^{t} I (1, 1)}\]
+where $I$ is $2 \times 2$ identity matrix (since $X_1$ and $X_2$ are uncorrelated). Therefore
+\[ VaR = \phi ^{-1}(\alpha) \sqrt{2} \]
+For $\alpha = 0.01$ quantile of the standard normal distribution is -2.3277. Therefore theoretical VaR in model A is
+<<>>=
+VaR <- -2.3277*sqrt(2)
+VaR
+@
+Let's test model A:
+<<>>=
+number <- 10000
+x1 <- rnorm(number)
+x2 <- rnorm(number)
+correlationA <- cor(x1, x2)
+correlationA
+alpha <- 0.01
+VaRcalcA <- quantile(x1+x2, alpha)
+VaRcalcA
+@
+There is a slight difference, supposedly because generated $X_1$ and $X_2$ are not uncorrelated.\\
+Let's test model B, starting by generating $X_2 = \epsilon Z$, where $\epsilon$ and $Z$ are distributed as defined by the task.
+<<>>=
+P <- c(0.5, 1)
+X <- c(-1, 1)
+Z <- rnorm(number)
+X_2 <- c()
+for (i in (1:number)){
+counter <- 1
+r <- runif(1)
+r
+while(r > P[counter]) {
+counter <- counter + 1
+end
+}
+Epsilon <- X[counter]
+
+X_2[i] <- Epsilon*Z[i]
+counter <- 1
+}
+
+correlationB <- cor(Z, X_2)
+correlationB
+alpha <- 0.01
+VaRcalcB <- quantile(Z + X_2, alpha)
+VaRcalcB
+@
+In model B VaR which is larger by absolute value, than in model A.
+
+\newpage
+\section{ Task 104}
+From the copula definition, we know: a copula is the joint distribution of random variables $U_{i}$, each of them is marginally uniformly distributed as $U \sim(0,1)$.\\
+$C(u_{1},...,u_{n}) = P (U_{1} \le u_{1},..., U_{n} \le u_{n})$ \\
+Every $F_{i} (x)$ is continuous and has a inverse $F_{i}^{-1}$ such that $F_{i}(F_{i}^{-1}(u)) = u$ for all $u \in [0,1]$.\\
+If $U_{i} = F_{i} (x_{i})$, then $U_{i}$ has uniform distribution on $(0,1)$.\\
+$P(U_{i} \le u) = P(F_{i} (x_{i}) \le u) = P(X_{i} \le F_{i}^{-1} (u)) = F_{i}(F_{i}^{-1}(u)) = u.$\\
+The copula in this case will be:\\
+$F(x_{1},...,x_{n}) = P(X_{1} \le x_{1},...,X_{n} \le x_{n}) = P(U_{1} \le F_{1} (x_{1}), ..., U_{n} \le F_{n} (x_{n})) = C (F_1(x_{1}),...,F_{n}(x_{n})) = C(u_{1},..., u_{n}).$\\
+This result is known as the Sklar's Theorem.
+
+\newpage
+\section{Task 105}
+	\textbf{Solution for the task is taken from Springer Series in Statistics Roger B. Nelson book: "An Introduction to Copulas" Second Edition 2006 Springer Science+Business Media, Inc}
+	
+	\makebox[\textwidth]{\includegraphics[width=\paperwidth]{part_1}}
+	\makebox[\textwidth]{\includegraphics[width=\paperwidth]{2}}	
+	\makebox[\textwidth]{\includegraphics[width=\paperwidth]{part_2}}
+	\makebox[\textwidth]{\includegraphics[width=\paperwidth]{part_3}}
+	\makebox[\textwidth]{\includegraphics[width=\paperwidth]{part_4}}
+	\makebox[\textwidth]{\includegraphics[width=\paperwidth]{part_5}}
+	\makebox[\textwidth]{\includegraphics[width=\paperwidth]{part_6}}
+
+\newpage
+\section{Task 106}
+The Gumbel family of copulas has
+\[ C_{\theta}^{Gu}(u, v) = exp(-((-ln(u))^{\theta} + (-ln(v))^{\theta})^{\frac{1}{\theta}}) \]
+where $\theta \geq 1$.\\
+Let $\psi(t)=e^{-t^{\frac{1}{\theta}}}$.
+Therefore for $0 < u \leq 1$, $\psi^{-1}(u)$ in the sense of definition $\psi^{-1}(u) = inf \{t : \psi(t) = u\}$ is $\psi^{-1}(u) = (-ln(u))^{\theta}.$
+Therefore $C_{\theta}^{Gu}(u, v)$ can be expressed in the form
+\[C(u, v) = \psi(\psi^{-1}(u)+\psi^{-1}(v)) \]
+ where $\psi(t)=e^{-t^{\frac{1}{\theta}}}$ is convex, for $t \geq 0$ maps to [0, 1], continious and non-increasing with $\psi(0) = 1$ and $ \lim_{x\to \infty} \psi(t) = 0$.\\
+ Therefore Gumbel family of copulas is Archimedean copula with generator $\psi = e^{-t^{\frac{1}{\theta}}}$.\\
+ If $\theta \rightarrow 1$, $C_{\theta}^{Gu}(u, v)$ converges to
+ \[ exp(-(-ln(u)) + (-ln(v)))  = exp(-(-ln(u))) * exp((-ln(v)))\]
+ which is independence copula.\\
+ If $\theta \rightarrow \infty$, $C_{\theta}^{Gu}(u, v)$ converges to the comonotonicity copula.
+ 
+\newpage
+\section{Task 107}
+<<>>=
+# Task 107
+library("MASS")
+simulate_from_gaussian_copula <- function(number_of_simulations, mu, Sigma)
+{
+  multivar_norm_dist_matrix <- mvrnorm(number_of_simulations, mu, Sigma)
+  U <- pnorm(multivar_norm_dist_matrix)
+  title <- paste('Covariance:', Sigma[1,2])
+  plot(U[,1], U[,2], xlab = 'U1', ylab = 'U2', main = title)
+  return(U)
+  
+}
+
+number_of_simulations <- 2000
+
+# Cov = 0
+mu <- c(0,0)
+Sigma <- diag(2)
+U <- simulate_from_gaussian_copula(number_of_simulations, mu, Sigma)
+
+# Cov = -0.8
+Sigma <- matrix(c(1, -0.8, -0.8, 1), nrow = 2, ncol = 2)
+U <- simulate_from_gaussian_copula(number_of_simulations, mu, Sigma)
+
+# Cov = -0.99
+Sigma <- matrix(c(1, -0.99, -0.99, 1), nrow = 2, ncol = 2)
+U <- simulate_from_gaussian_copula(number_of_simulations, mu, Sigma)
+
+# Cov = 0.8
+Sigma <- matrix(c(1, 0.8, 0.8, 1), nrow = 2, ncol = 2)
+U <- simulate_from_gaussian_copula(number_of_simulations, mu, Sigma)
+
+# Cov = 0.99
+Sigma <- matrix(c(1, 0.99, 0.99, 1), nrow = 2, ncol = 2)
+U <- simulate_from_gaussian_copula(number_of_simulations, mu, Sigma)
+@
+If covariance tends to + 1 or -1 scatter plot tends to a line. Moreover if covariance is positive both U1 and U2 move in the same direction when negative correlation means that U1 and U2 move in opposite directions
+
+\newpage
+\section{Task 108}
+<<>>=
+# Task 107
+library("MASS")
+simulate_from_gaussian_copula <- function(number_of_simulations, mu, Sigma)
+{
+  multivar_norm_dist_matrix <- mvrnorm(number_of_simulations, mu, Sigma)
+  U <- pnorm(multivar_norm_dist_matrix)
+  title <- paste('Covariance:', Sigma[1,2])
+  plot(U[,1], U[,2], xlab = 'U1', ylab = 'U2', main = title)
+  return(U)
+  
+}
+
+number_of_simulations <- 2000
+
+# Cov = 0
+mu <- c(0,0)
+Sigma <- diag(2)
+U <- simulate_from_gaussian_copula(number_of_simulations, mu, Sigma)
+
+# Cov = -0.8
+Sigma <- matrix(c(1, -0.8, -0.8, 1), nrow = 2, ncol = 2)
+U <- simulate_from_gaussian_copula(number_of_simulations, mu, Sigma)
+
+# Cov = -0.99
+Sigma <- matrix(c(1, -0.99, -0.99, 1), nrow = 2, ncol = 2)
+U <- simulate_from_gaussian_copula(number_of_simulations, mu, Sigma)
+
+# Cov = 0.8
+Sigma <- matrix(c(1, 0.8, 0.8, 1), nrow = 2, ncol = 2)
+U <- simulate_from_gaussian_copula(number_of_simulations, mu, Sigma)
+
+# Cov = 0.99
+Sigma <- matrix(c(1, 0.99, 0.99, 1), nrow = 2, ncol = 2)
+U <- simulate_from_gaussian_copula(number_of_simulations, mu, Sigma)
+@
+If covariance tends to + 1 or -1 scatter plot tends to a line. Moreover if covariance is positive both U1 and U2 move in the same direction when negative correlation means that U1 and U2 move in opposite directions\\
+
+Moreover, increasing in degrees of freedom makes the whole picture more similar to the standard normal distribution case. In this case the tendency to a line is more obvious.
+
+\end{document}

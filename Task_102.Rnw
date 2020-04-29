@@ -1,0 +1,95 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{listings}
+\usepackage{inconsolata}
+%% We used knitr.
+%% To compile with sweave, delete it and insert sweave concordance line.
+<<echo=FALSE>>=
+  options(width=60)
+
+listing <- function(x, options) {
+  paste("\\begin{lstlisting}[basicstyle=\\ttfamily,breaklines=true]\n",
+        x, "\\end{lstlisting}\n", sep = "")
+}
+knit_hooks$set(source=listing, output=listing)
+@
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+\author{Group 8}
+\title{Statistics 1 Unit 6}
+\begin{document}
+
+
+
+	\maketitle
+	\tableofcontents
+
+
+\section{Task 102}
+$X, \epsilon _1,\epsilon _2$ are independent. $ X \sim N(0,1), P(\epsilon _i = -1) = P(\epsilon _i = 1) = 1/2.$ $ X_1 = \epsilon _1 X, X_2 = \epsilon _1 X.$
+\subsection{ a)}
+Prove $X_1 \sim N(0,1), X_2 \sim N(0,1), \rho (X_1,X_2) = 0.$\\
+$X_1 \sim N(0,1):$
+\[ F_{X_1} (x) = P(X_1 \le x) = P(\epsilon _1 X \le x) = P(\epsilon _1 = 1)P(X \le x) + P(\epsilon _1 = -1) P(-X \le x) \]
+\[ = 1/2 \Phi _X (x) + 1/2 P(X \ge -x) =1/2 \Phi _X (x)+ 1/2 (1- P(X \le -x) = 1/2 \Phi _X (x) + 1/2 (1- \Phi _X (-x)) \]
+\[ = 1/2 \Phi _X (x) + 1/2 (1- (1- \Phi _X (x))) = 1/2 \Phi _X (x) + 1/2 \Phi _X (x) = \Phi _X (x).\]
+\newline
+We see $X_1 \sim N(0,1)$ and the same is true for $X_2$.\\
+\newline
+Let's prove that $\rho (X_1,X_2) = 0$.\\
+Preliminary step:\\
+\[ E(\epsilon _1) = 1 P(\epsilon _1 = 1) + (- 1) P(\epsilon _1 = -1) = 1/2 + (- 1/2) = 0. \]
+It follows that
+\[ E(\epsilon _1) = E(\epsilon _2) = 0. \]\\
+In addition, if $Y,Z$ are independent, then $g(Y)$ and $f(Z)$ are independent as well. Thus $\epsilon _1$, $\epsilon _2$ and $X^2$ are independent. Therefore:
+\[ \rho (X_1,X_2) = \frac{Cov(X_1,X_2)}{\sigma _{X_1} \sigma _{X_2}} = \frac{Cov(X_1,X_2)}{1} = E(X_1 X_2) - E(X_1)E(X_2) \]
+\[ = E( \epsilon _1 X \epsilon _2 X) - E( \epsilon _1 X)E( \epsilon _2 X)  = E( \epsilon _1 \epsilon _2 X^2) - E(\epsilon _1) E(\epsilon _2) E(X) E(X) \]
+\[ = E( \epsilon _1) E (\epsilon _2) E(X^2) - E(\epsilon _1) E(\epsilon _2) E(X) E(X) = 0.\] \\
+\subsection{ b)}
+We can apply the following theorem:\\
+$X_1$ and $X_2$ are independent, iff $P(X_1|X_2) = P(X_1).$\\
+We will find a counterexample which proves dependency.\\
+\[ P(X_1 < 0| X_2 = 0) = P((X_1 < 0 | X_2 =0) | \epsilon _1 = 1) P (\epsilon _1 = 1) +  P((X_1 < 0 | X_2 =0) | \epsilon _1 = -1) P (\epsilon _1 = -1)) \]
+\[ 0.5 * P (X < 0 | \epsilon _2 X = 0 ) + 0.5  * P (-X < 0 | \epsilon _2 X = 0)   \]
+\[  = 0.5*P(X < 0 | X = 0) + 0.5*P(X > 0 | X = 0) = 0 + 0 = 0. \]
+(We use the fact that since $\epsilon _2$ equals 1 or -1, $\epsilon _2 X = 0$ iff $X = 0$, and value of $\epsilon _2$ has no influence on it).\\
+But
+\[ P(X_1 < 0) = \Phi (0) = 1/2. \]
+We see that here $P(X_1|X_2) \neq P(X_1).$\\
+Thus $X_1$ and $X_2$ are not independent!\\
+\subsection{ c)}
+\[ C(u_{1}, u_{2}) = C(F_{X_{1}}(x_1), F_{X_{2}}(x_2)) = P(X_1 \le x_1, X_2 \le x_2) = P( \epsilon _1 X \le x_1, \epsilon _2 X \le x_2) \]
+\[ = P(\epsilon _1 =1)P(\epsilon _2 =1)P(1X \le x_1, 1X \le x_2) + P(\epsilon _1 =-1)P(\epsilon _2 =-1)P(-X \le x_1, -X \le x_2) \]
+\[ + P(\epsilon _1 =1)P(\epsilon _2 =-1)P(1X \le x_1, -X \le x_2) + P(\epsilon _1 =-1)P(\epsilon _2 =1)P(-X \le x_1, 1X \le x_2) \]
+\[ = \frac{1}{4}P(1X \le x_1, 1X \le x_2) + \frac{1}{4}P(-X \le x_1, -X \le x_2) + \frac{1}{4}P(1X \le x_1, -X \le x_2) + \frac{1}{4}P(-X \le x_1, 1X \le x_2) \]
+
+\[ = \frac{1}{4}(P(X \le min(x_1,x_2)) + P(X \ge -x_1, X \ge -x_2) + P(X \le x_1, X \ge -x_2) + P(X \ge -x_1, X \le x_2)) \]
+
+\[ = \frac{1}{4} (\Phi (min(x_1,x_2)) + P(X \ge max(-x_1, -x_2)) + P(-x_2 \le X \le x_1) + P( -x_1 \le X \le x_2)) \]
+
+\[ = \frac{1}{4} (\Phi (min(x_1,x_2)) + (1 - P (X \le max(-x_1, -x_2))) + max(\Phi(x_1) - \Phi(-x_2), 0) + max(\Phi(x_2) - \Phi(-x_1), 0)) \]
+
+\[ = \frac{1}{4} (\Phi (min(x_1,x_2)) + 1 - \Phi (max(-x_1, -x_2)) + max(\Phi(x_1) - (1-\Phi(x_2)), 0) + max(\Phi(x_2) - (1-\Phi(x_1)), 0)) \]
+
+\[ =  \frac{1}{4} (\Phi (min(x_1,x_2)) + 1-(1-\Phi (-max(-x_1, -x_2))) + max(\Phi(x_1) - 1 + \Phi(x_2), 0) +  max(\Phi(x_2) - 1 +\Phi(x_1),0)) \]
+
+\[ =  \frac{1}{4} (\Phi (min(x_1,x_2)) + 1-1+\Phi (-max(-x_1, -x_2)) + max(\Phi(x_1) + \Phi(x_2) - 1 , 0) + max(\Phi(x_1) + \Phi(x_2) - 1 , 0)) \]
+
+\[ =  \frac{1}{4} (\Phi (min(x_1,x_2)) +\Phi (-max(-x_1, -x_2)) + 2 max(\Phi(x_1) + \Phi(x_2) - 1 , 0)) \]
+
+\[ =  \frac{1}{4} (\Phi (min(x_1,x_2)) +\Phi (min(x_1,x_2)) + 2 max(\Phi(x_1) + \Phi(x_2) - 1 , 0)) \]
+
+\[ = \frac{1}{4} (2 \Phi (min(x_1,x_2)) + 2 max(\Phi(x_1) + \Phi(x_2) - 1 , 0)) \]
+
+\[ = \frac{min (u_1, u_2) + max (u_1 + u_2 - 1, 0)}{2}. \]
+
+
+\end{document}

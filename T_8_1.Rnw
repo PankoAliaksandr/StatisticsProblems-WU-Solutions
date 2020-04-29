@@ -1,0 +1,425 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{listings}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\author{Team 8}
+\title{Statistics 2 Unit 2}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+
+	\maketitle
+	\tableofcontents
+
+\newpage
+
+\section{Task 18}
+Let's consider two cases: when $\lambda = 0 \wedge \lambda \neq 0$. Also note that $X_i$ are i.i.d, therefore their joint density is the product of their marginal densities, which is the likelihood function. The we only need to take logarithm. \\
+ 
+\begin{equation*}
+f(x_{1},...,x_{n}|\mu, \sigma^2)=\prod_{i=1}^n \frac{1}{\sqrt{2\pi}\sigma}exp{-\frac{1}{2} (\frac{(log(X_{i})-\mu)}{\sigma})^2} \text{ , when } \lambda=0
+\end{equation*}
+
+By taking the logarithm we find the log likelihood: \\
+
+\begin{equation*}
+l(\mu, \sigma^2)=-\frac{n}{2}log(2\pi)-nlog(\sigma)-\frac{1}{2\sigma^2}\sum_{i=1}^n(log(X_{i})-\mu)^2.
+\end{equation*}
+
+
+\begin{equation*}
+f(x_{1},...,x_{n}|\mu, \sigma^2, \lambda)=\prod_{i=1}^n \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(\frac{x^\lambda-1}{\lambda}+\mu)^2}{2\sigma^2}} \text{ , when } \lambda \neq 0
+\end{equation*}
+
+By taking the logarithm we find the log likelihood: \\
+
+\begin{equation*}
+l(\mu, \sigma^2)=-\frac{n}{2}log(2\pi)-nlog(\sigma)-\frac{1}{2\sigma^2}\sum_{i=1}^n((\frac{X_{i}^\lambda -1}{\lambda})-\mu)^2.
+\end{equation*}
+
+
+
+\section{Task 19}
+\newline
+Assume $F$ is differentiable at $x_{i}$, then by definition of differentiation:\\
+\newline
+$lim_{h\to 0} \frac{F_0(x_{i} + h|\gamma) - F_0(x_{i} - h|\gamma)}{2h} = f_0(x_{i}|\gamma)$\\
+\newline
+$L(\theta|x_1 ,...,x_n ) = $lim_{h\to 0} \prod_{i=1}^{n} \frac{F_0(x_{i} + h|p_0, p_1, \gamma) - F_0(x_{i} - h|p_0, p_1,\gamma)}{2h} = f_0(x_{i}|p_0, p_1,\gamma)$\\
+\newline 
+Now, let's use the equation from the task:\\
+$F(x|p_0, p_1, \gamma) = p_0 I(0 \leq x) + (1 - p_0 - p_1 )F_0 (x|\gamma) + p_1 I(x \geq 1)$\\
+\newline
+$L(\theta|x_1 ,...,x_n ) = \\ $lim_{h\to 0} \prod_{i=1}^{n} \frac{p_0 I(0 \leq x_{i}+ h) + (1 - p_0 - p_1 )F_0 (x_{i} + h|\gamma) + p_1 I(x_{i} + h \geq 1) - p_0 I(0 \leq x_{i} - h) - (1 - p_0 - p_1 )F_0 (x_{i} - h|\gamma) - p_1 I(x_{i} - h \geq 1)}{2h}$\\
+\newline
+It is given that $n_0$ values are 0 and $n_1$ values are 1. Therefore:\\
+\newline
+$p_0I(0 \leq 0 - h) = 0$\\
+$p_0I(0 \leq 0 + h) = p_0$\\
+$p_1I(1 + h \geq 1) = p_1$\\
+$p_1I(1 - h \geq 1) = 0$\\
+\newline
+$\Rightarrow$\\
+\newline
+$L(\theta|x_1 ,...,x_n ) = $\prod_{i:0 \leq x_{i} \leq 1} (1 - p_0 - p_1 )lim_{h\to 0} \frac{F_0(x_{i} + h|\gamma) - F_0 (x_{i} - h|\gamma)}{2h} \prod_{n_0} p_0 \prod_{n_1} p_1 =\\
+\newline
+(1 - p_0 - p_1 )^{n - n_0 - n_1} p_0^{n_0} p_1^{n_1} \prod_{i:0 \leq x_{i} \leq 1} f_0 (x_i|\gamma)$\\
+\newline
+
+
+\section{Task 20}
+Let $X$ be a serial numbers, which follow a \textbf{discrete} uniform distribution from 1 to N. Thus
+$$ P(X=x) = \frac{1}{N}.$$
+\newline
+
+\textbf{Method of Moments}\\
+Let's find the first moment:
+$$\mathbb{E}(X_1) =  \sum_{x=1}^{N} x P(X_1=x) = \sum_{x=1}^{N} x \frac{1}{N}  = \frac{N+1}{2}.$$ \\
+\newline
+Let's find N:\\
+$$N = 2 \mu -1 $$ where $\mu$ is the first moment.\\
+We can rewrite it using the sample moment $$ \hat{N} = 2 \bar{X} -1.$$
+\newline
+We know that $\bar{X}=888$ $\Rightarrow$ $ \hat{N} = 2 \cdot 888 - 1 = 1775.$
+\newline
+\textbf{Maximum Likelihood Estimation}\\
+
+Assume $X_i$ is iid $\Rightarrow$ \\
+$$lik(N) = \prod_{i=1}^{m}f(X_i|N) = \prod_{i=1}^{m} \frac{1}{N} \bm{\mathbb{I}} (X_i \in \{1,....,N\}) = \frac{1}{N^m} \bm{\mathbb{I}} \{X_{(n)} \le N\} $$ where $X_{(n)$ is the maximum.\\
+
+In our sample we have only one draw, $888$, this is also the maximum and the maximum likelihood estimation.
+
+\section{Task 21}
+The outcomes of trials are i.i.d and follow the Binomial distribution.\\We are looking for a $\theta$, which is a probability that a coin comes up head.\\
+As $x_{i}$ are i.i.d, their mutual CDF is a product of their marginals:
+
+\begin{equation*}
+\begin{split}
+L_{G}(\theta|X_{1}, X_{2}, X_{3}) &= \prod^{n}_{i=1} \theta^\(x_{i}\)(1- \theta)^\(1-x_{i}\)\\
+&= \theta^{\sum x_{i}}(1- \theta)^{\sum 1-x_{i}}
+\end{split}
+\end{equation*}
+In case of Hilary we can use Geometric distribution (stating the number of failres before success)
+\begin{equation*}
+\begin{split}
+L_{H}(\theta|X_{1}, X_{2}, X_{3}, X_{4}) &=  \theta(1- \theta)^\(m -1\)
+\end{split}
+\end{equation*}
+Where $x_{i} = 1$ (head) or $x_{i} = 0$ (tail), \\$n=$ number of George's trials, $m=$ number of Hilary's trials.
+\\Then:
+
+\begin{equation*}
+\begin{split}
+L_{G+H}(\theta|X) =  \theta^{\sum^{n}_{1}(x_{i}) +1}(1- \theta)^{\sum^{n}_{1}(1-x_{i}) + m -1}
+\end{split}
+\end{equation*}
+\\To find an MLE of $\theta$ we need to take the log of the likelihood function and maximize it with respect to $\theta$. We can do it by taking the derivative w.r.t $\theta$:
+\begin{equation*}
+\begin{split}
+(\log{ L_{G+H}(\theta|X)})' &=  ((\sum^{n}_{1}(x_{i}) +1)\log{ \theta} + (\sum^{n}_{1}(1-x_{i}) + m -1)\log{(1- \theta)})'\\
+&=\frac{\sum^{n}_{1}(x_{i}) +1}{\theta} + \frac{\sum^{n}_{1}(1-x_{i}) + m -1}{1- \theta} = 0 \\
+\end{split}
+\end{equation*}
+$\Rightarrow \hat\theta = \frac{\sum^{n}_{1}(x_{i}) +1}{n+m} = \frac{1}{7}$\\
+
+
+\section{Task 23}
+\subsection{Method of moments}
+Let's calculate the first two moments of the shifted exponential distribution: \\
+
+
+\begin{equation}
+\mu_1=\int_\mu^\infty x f(x) dx= \frac{1}{\sigma} \int_\mu^\infty\! x e^{-(x - \mu)/\sigma} dx =
+\end{equation}
+
+Let $u = (x - \mu)/\sigma$. Then $du = dx/\sigma$. So the integral is calculated as follows:
+
+\begin{equation}
+= \int_0^\infty\! (u \sigma + \mu)e^{-u} du =\sigma\int_0^\infty\! ue^{-u}du + \mu \int_0^\infty\!  e^{-u} du
+= \sigma \Gamma (2) + \mu\Gamma(1) = \sigma + \mu
+\end{equation}
+
+Therefore:
+
+\begin{equation}
+\mu_1 = E(X) = \mu + \sigma
+\end{equation}
+
+The second moment:
+
+\begin{equation}
+\mu_2
+= \int_\mu^\infty x^2 f(x) dx = \frac{1}{\sigma} \int_\mu^\infty\! x^2 e^{-(x - \mu)/\sigma} dx 
+= \int_0^\infty\! ((u \sigma + \mu))^2 e^{-u} du 
+\end{equation}
+
+\begin{equation}
+=\sigma^2\int_0^\infty\! u^2e^{-u}du + \mu^2 \int_0^\infty\!  e^{-u} du + 2\mu\sigma\int_0^\infty\! ue^{-u}du 
+\end{equation}
+
+\begin{equation}
+= \sigma^2 \Gamma (3) + \mu^2 + 2\mu\sigma\Gamma(1) = 2\sigma^2 + \mu^2 + 2\mu\sigma
+\end{equation}
+
+Therefore:
+
+\begin{equation}
+\mu_2=E(X^2)=2\sigma^2 + 2\mu\sigma + \mu^2
+\end{equation}
+
+Therefore the variance is:
+\begin{equation}
+\var(X)=E(X^2) - E(X)^2 = 2\sigma^2 + 2\mu\sigma + \mu^2 - (\mu + \sigma)^2 = \sigma^2
+\end{equation}
+
+And the sample moments are: 
+
+\begin{equation}
+m_1=\frac{1}{n}\sum_{i=1}^{n} X_i
+\end{equation}
+
+\begin{equation}
+m_2=\frac{1}{n}\sum_{i=1}^n X_i^2
+\end{equation}
+
+Let's solve the quations $m_1=\mu_1$ and $m_2=\mu_2$: 
+
+\begin{equation}
+m_1=\mu_1
+\end{equation}
+
+\begin{equation}
+\frac{1}{n}\sum_{i=1}^{n} X_i = \mu + \sigma
+\end{equation}
+
+\begin{equation}
+m_2=\mu_2 
+\end{equation}
+
+\begin{equation}
+\frac{1}{n}\sum_{i=1}^n X_i^2 = 2\sigma^2 + 2\mu\sigma + \mu^2 = (\mu + \sigma)^2 + \sigma^2
+\end{equation}
+
+\begin{equation}
+\frac{1}{n}\sum_{i=1}^n X_i^2 = (\frac{1}{n}\sum_{i=1}^{n} X_i)^2 + \sigma^2
+\end{equation}
+
+\begin{equation}
+\sigma^2 = \frac{1}{n}\sum_{i=1}^n X_i^2 - (\frac{1}{n}\sum_{i=1}^{n} X_i)^2
+\end{equation}
+
+\begin{equation}
+\sigma^2 = \frac{1}{n}\sum_{i=1}^n (X_i -\bar{X})^2
+\end{equation}
+
+Therefore:
+
+\begin{equation}
+\hat\sigma= \sqrt {\frac{1}{n} \sum_{i=1}^n (X_i -\bar{X})^2}
+\end{equation}
+
+Substituting the result in $m_1=\mu_1$, we get
+
+\begin{equation}
+\hat\mu=\bar{X} - \sqrt {\frac{1}{n} \sum_{i=1}^n (X_i -\bar{X})^2}
+\end{equation}
+
+
+
+\subsection{Method of maximum likelihood}
+
+the likelihood function is: 
+
+\begin{equation}
+l(\mu, \sigma)= \frac{1}{\sigma^n}exp(-\frac{1}{\sigma}\sum_{i=1}^n(x_i-\mu))
+\end{equation}
+
+from which, the log-likelihood: 
+
+\begin{equation}
+log(l(\mu,\sigma))= -n \log{\sigma} -\frac{1}{\sigma}\sum_{i=1}^n(x_i-\mu)
+\end{equation}
+
+If  $\mu$ is known, we set the first derivative of log-likelihood with respect to $\sigma$ to 0 in order to calculate the mle of $\sigma$:
+
+\begin{equation}
+\frac{\partial}{\partial \sigma} = 0 \rightarrow \hat\sigma=\frac{1}{n} \sum_{i=1}^{n}(X_i-\mu))
+\end{equation}
+
+If $\mu$ is not known, we take into account that $x \ge \mu$, therefore we get:
+
+\begin{equation}
+\hat\mu=min(X_1, X_2, ...)
+\end{equation} 
+
+So in this case $\sigma$ is estimated as follows:
+
+\begin{equation}
+\frac{\partial}{\partial \sigma} = 0 \rightarrow \hat\sigma=\frac{1}{n} \sum_{i=1}^{n}(X_i-min(X_i))
+\end{equation}
+
+
+\\
+
+
+
+
+\section{Task 24}
+We need to prove that:\\
+\newline
+$\hat{\alpha} = \frac{n}{\sum_{i = 1}^{n}\log(1 + X_{i}/\lambda)}$\\
+\newline
+MLE method:\\
+$lik(\alpha,\lambda) = \prod_{i = 1}^{n} f(X_{i} | \alpha,\lambda)$\\
+\newline
+We will maximize natural logarithm of $lik(\alpha,\lambda)$\\
+$l(\alpha,\lambda) = \sum_{i = 1}^{n}\log (f(X_{i} | \alpha,\lambda))$\\
+\newline
+Lomax density: $f(x) = \frac{\alpha}{\lambda}(1 + \frac{x}{\lambda})^{-(\alpha + 1)}$\\
+\newline
+$l(\alpha,\lambda) = \sum_{i = 1}^{n}\log (\frac{\alpha}{\lambda}(1 + \frac{x_{i}}{\lambda})^{-(\alpha + 1)}) = n\log(\frac{\alpha}{\lambda}) - (\alpha + 1)\sum_{i = 1}^{n}\log(1 + \frac{x_{i}}{\lambda})$\\
+\newline
+Take a derivative wrt to $\alpha$ and equal it to 0!\\
+$\frac{n\lambda}{\alpha\lambda} - \sum_{i = 1}^{n}\log(1 + \frac{x_{i}}{\lambda}) = 0$\\
+\newline
+$\hat{\alpha} = \frac{n}{\sum_{i = 1}^{n}\log(1 + \frac{x_{i}}{\lambda})}$\\
+\newline
+$\hat{\alpha}$ is also random variable! We know from theory that $E(\hat{\alpha}) = 0$ and that $Var(\hat{\alpha})$ is equal to Fisher Information. So, the standard error will be square root from Fisher Information.\\
+\newline
+$I(\alpha) = E_{\alpha} (\frac{\log f(X|\alpha)}{\alpha}^{'})^2 = -E_{\alpha}(\frac{\log f(X|\alpha)}{\alpha}^{''})$\\
+\newline
+So, we need to take the second derivative wrt $\alpha$.\\
+\newline
+$(\frac{n}{\alpha} - \sum_{i = 1}^{n}\log(1 + \frac{x_{i}}{\lambda}))^{'} = -E_{\alpha}(-n/\alpha^2) =  E_{\alpha}(n/\alpha^2)$\\
+\newline
+The maximum likelihood estimator $\hat{\alpha}$ is asymptotically distributed as:
+$\hat{\alpha} \sim N(\alpha, 1/nI_{\alpha})$\\
+\newline
+Plug in the $I_{\alpha}$:\\
+$\hat{\alpha} \sim N(\alpha, 1/(n/\alpha)^2)$\\
+\newline
+From here we derive:
+$sd(\hat{\alpha}) = \sqrt{(\frac{\alpha}{n})^2} = \alpha/n$\\
+\newline
+Next, we need to prove that if $U \sim U(0,1)$, $\lambda(U^{-1/\alpha} - 1) \sim$ Lomax ($\alpha, \lambda$).\\
+\newline
+Here we start:
+$F_{X}(x) = P(X \leq x) = P(\lambda(U^{-1/\alpha} - 1) \leq x) = P(U^{-1/\alpha} \leq \frac{X + \lambda}{\lambda}) = P(U \geq (\frac{x+\lambda}{\lambda})^{-\alpha}) = 1 - P(U \leq (\frac{x+\lambda}{\lambda})^{-\alpha}) = 1 - (1 + \frac{x}{\lambda})^{-\alpha}.$\\
+\newline
+Here we recognise the CDF of Lomax distribution with parameters $\alpha, \lambda$\\
+\newline
+Also, we need to prove that $\hat(\alpha)/\alpha \sim Gamma (n,n)$. Let's have a look at $\hat{\alpha}/\alpha$.\\
+\newline
+$\hat{\alpha}/\alpha = \frac{n}{\alpha\sum_{i = 1}^{n}\log(1 + \frac{x_{i}}{\lambda})}$
+Let's find out the distribution of $Z = \log(1 + \frac{x}{\lambda})$\\
+\newline
+$F_{Z}(z) = P(\log(1 + \frac{x}{\lambda}) \leq x) = P((1 + \frac{x}{\lambda}) \leq e^{x}) = P(X \leq \lambda(\exp^{x} - 1)) = F_{X}(\lambda(\exp^{x} - 1))$\\
+\newline
+Recall $X \sim Lomax (\alpha,\lambda).$
+Thus, we obtain the folowing:
+$F_{Z}(z) = 1 - (1 + \frac{\lambda(\exp^{x} - 1))}{\lambda})^{-\alpha} = 1 - \exp^{-x\alpha}$ \\
+\newline
+From here we conclude that $Z \sim E(\alpha).$ \\
+\newline
+We know the characteristic function of Exponentional distribution:
+$\phi_{z} (t) = \frac{\alpha}{\alpha - it}$\\
+\newline
+But we need the characteristic function of the sum of i.i.d RVs $\sim E(\alpha).$
+$\phi_{z_1 + ... + z_n} = ({1 - \frac{it}{\alpha})^{-n}$ due to independence of $Z_1, ..., Z_n$ characteristic function of sum is the product of characteristic functions. And here we recognize the characteristic function of $Gamma (\alpha, n)$. But the parameter $\alpha$ is the rate. To have a scale parameter, we need inverse of Gamma, i.e. $Gamma(1/\alpha, n).$  \\
+\newline
+We know the property  of the Gamma distribution:\\
+\newline
+if $X \sim Gamma (n, 1/\alpha)$, then $bX \sim Gamma (n, b/\alpha).$
+From MLE method of $\alpha$ estimation we can see that $n = \hat{\alpha}$*some constant $b$. So, we have just proved that $\hat{\alpha}/\alpha \sim Gamma (n,n)$ (where n is scale and shape parameter!).
+
+\section{Task 25}
+This is an example of excess loss reinsurance. For $W$ we are in particular interested in the case where $X > 40 000$. So let's denote this positive random variable with $W_E$.\\
+\newline
+\subsection{a)}
+The distribution of $W$ can be viewed as a mixture distribution. The insurance company pays nothing with probability $F_X(40000)$ and the excess with probability $\bar{F}_{X}(40000) $ (often called the survival function, just the counter probability). Let's find the excess distribution:
+$$ \bar{F}_{W_E} = P(X > 40000 + x | X > 40000) = \frac{\bar{F}_X(40000+w)}{\bar{F}_X(40000)}.$$
+The density then can be found by differentiating:
+$$ f_{W_E} = \frac{f_X(40000+x)}{\bar{F}_X(40000)},~~~ x>0$$ for $X>40000$ and $\f_{W_E} = 0$ else.\\
+\newline
+By rearranging the given density function of $X$ a bit, we can see that this is just the Lomax distribution (with $\lambda = 20000$).\\
+The cumulative distribution function of the Lomax distribution is 
+$$ F(x|\alpha) = 1~ - ~ \left( 1+ \frac{x}{20000}\right)^{-\alpha}.  $$
+The desired density for $W$ then yields
+$$ f_{W_E} = \frac{\frac{\alpha 2^{\alpha}10^{4\alpha}}{(20000+ (40000+x))^{\alpha + 1}}}{\left( 1+ \frac{40000}{20000}\right)^{-\alpha}} = \frac{\alpha 20000^{\alpha} ~ \left( 1+ 2 \right)^{\alpha}}{\left( 60000 + x \right)^{\alpha +1}} = \frac{\alpha \left(60000 \right)^{\alpha}}{\left( 60000 + x \right)^{\alpha +1}} $$ for $X > 40000$ and $0$ else.\\
+This is again a Lomax distribution with parameter $\lambda = 60000$.
+\newline
+Now let us find the mean. One can think of $W$ as a mixture of the excess distribution and $0$. So we can calculate the mean by weighting according to the probability:
+$$ \mathbb{E}(W) = 0 +  \mathbb{E}(W_E) P(X>40000) = \mathbb{E}(W_E)\bar{F}_X(40000) = \frac{60000}{\alpha - 1} \frac{1}{3^{\alpha}}. $$
+\newline
+$W$ has only variability, if $X>40000$. We can calculate the variance again by seeing it as a mixture:
+$$\mathbb{V}(W) = 0 + \mathbb{V}(W_E) P(X>40000) = \frac{\alpha 60000^2}{(\alpha -1)^2(\alpha - 2)} \frac{1}{3^{\alpha}}.$$
+Note that this is just the variance for the Lomax distribution with $\lambda = 60000$ multiplied with the corresponding probability.
+
+\subsection{b)}
+For finding the MLE we can use the result from the exercise before where $\lambda = 60000$. So the MLE is
+<<>>=
+Xi <- c(14000,21000,6000,32000, 2000)
+n <- length(Xi)
+MLElomax <- n/sum(log(1 + Xi/60000))
+MLElomax
+@
+The standard error can be approximated by drawing a large enough sample where we estimate the MLE for every sample.
+<<>>=
+require(matrixStats)
+require(Renext)
+Lomaxsample <- matrix(rlomax(length(Xi)*1000,
+        scale = 60000, shape = MLElomax), nrow=length(Xi), ncol=1000)
+LoMLEs <- 5/colSums(apply(Lomaxsample,2,function(x){log(1+x/60000)}))
+alphabar <- rep(mean(LoMLEs),1000)
+@
+And finally the estimated standard error of $\hat{\alpha}}.$
+<<>>=
+sqrt(sum((LoMLEs - alphabar)^2)/1000)
+@
+
+
+\section{Task 26}
+After taking derivative wrt x, we can find the PMF for each X and then, as they are i.i.d find the generall PMF:
+\begin{equation*}
+\begin{split}
+f(X,M)= \prod^{n}_{1} \big( -\frac{\alpha\lambda^{\alpha}}{(\lambda + x_{i})^{\alpha +1}}\big) \big(-\frac{\alpha\lambda^{\alpha}}{(\lambda + M)^{\alpha +1}}\big)^{m}
+\end{split}
+\end{equation*}
+Then
+\begin{equation*}
+\begin{split}
+\log{f(X,M)} &= \sum^{n}_{1}\big( \log{ -\alpha\lambda^{\alpha}} -(\alpha +1)\log{(\lambda + x_{i})}\big) +m\log{\big(-\frac{\alpha\lambda^{\alpha}}{(\lambda + M)^{\alpha +1}}\big)}\\
+&=\sum^{n}_{1}\big( \log{ -\alpha} +\alpha\log{\lambda} -(\alpha +1)\log{(\lambda + x_{i})}\big) +m\log{\big(-\frac{\alpha\lambda^{\alpha}}{(\lambda + M)^{\alpha +1}}\big)}\\
+&= n\log{ -\alpha} + n\alpha\log{\lambda} -n(\alpha +1)\log{(\lambda + x_{i})}\\  &+m\log{-\alpha} + m\alpha\log{\lambda} - m(\alpha +1)\log{(\lambda + M)}\\
+(\log{f(X,M)})' &= -\frac{m+n}{\alpha} + m(\log(\frac{\lambda}{\lambda + M})) + \sum^{n}_{i=1}\log(\frac{\lambda}{\lambda + x_{i}}) = 0\\
+\hat\alpha_{Total} &= \frac{m+n}{m\log{\frac{\lambda}{\lambda + M} + \sum^{n}_{i=1}\log{\frac{\lambda}{\lambda + x_{i}}}}}\\
+&= \frac{m+n}{-(m\log{(1+ \frac{M}{\lambda})} + \sum^{n}_{i=1}\log{(1+ \frac{x_{i}}{\lambda})})}\\
+\hat\alpha_{Eire General}&= \frac{n}{\sum^{n}_{i=1}\log{(1+ \frac{x_{i}}{\lambda})} + m\log{(1+ \frac{M}{\lambda})}}\\
+\end{split}
+\end{equation*}
+In the particular example, our $\hat\alpha_{MLE}$ is equal to 
+<<>>=
+amounts <- c(14.9, 775.7, 805.2, 
+             993.9, 1127.5, 1602.5, 1998.3, 2000, 2000, 2000)
+
+ex26 <- function(n,m,lambda,amounts){
+ for(i in 1:n){
+    a <- sum(log(1 + amounts[i]/lambda))
+}
+alpha_mle <- n/(a + m*log(1+amounts[length(amounts)]/lambda)) 
+
+return(alpha_mle)
+}
+ex26(7,3,8400,amounts)
+@
+
+
+\end{document}

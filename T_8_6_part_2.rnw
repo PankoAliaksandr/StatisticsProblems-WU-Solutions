@@ -1,0 +1,463 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{Statistics II}
+\fancyhead[RE,LO]{Homework 6}
+\fancyfoot[CE,CO]{\leftmark}
+\fancyfoot[LE,RO]{\thepage}
+\newcommand{\EV}[1]{\mathbb{E}\left[#1\right]}
+\newcommand{\Var}[1]{\text{Var}\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,      
+	urlcolor=cyan,
+}
+
+\author{Team 8}
+\title{Part 2}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+	\maketitle
+	\tableofcontents
+
+
+\section*{Task 102}
+\subsection*{a)}
+
+<< echo = FALSE,warning = FALSE, message = FALSE,fig=TRUE>>=
+library(UsingR)
+
+# Check that the set is really ours
+
+# head(normtemp)
+# tail(normtemp)
+
+# Prepare 2-pictures output
+par(mfrow=c(1,2))
+
+# Get men data
+data_men <- subset.data.frame(normtemp,gender == 1, select=c(temperature, hr)) 
+
+# Plot dependency Temperature ~ Heart rate  (Men)
+plot(data_men[,2],
+     data_men[,1],
+     main="Male",
+     xlab = "heart rate",
+     ylab = "temperature",
+     col="blue")
+
+# Add regression line
+abline(lm(data_men[,1] ~ data_men[,2]))
+
+# The same for women
+data_women <- subset.data.frame(normtemp,gender == 2, select=c(temperature, hr)) 
+
+plot(data_women[,2],
+     data_women[,1],
+     main="Female",
+     xlab = "heart rate",
+     ylab = "temperature",
+     col="red")
+
+abline(lm(data_women[,1] ~ data_women[,2]))
+@
+\subsection*{b)}
+<< >>=
+# Strength of relationships is represented by correlation:
+# Men
+cor(data_men[,2],data_men[,1], method="pearson")
+# rank correlation coefficients
+cor(data_men[,2],data_men[,1], method="kendall")
+cor(data_men[,2],data_men[,1], method="spearman")
+
+# Women
+cor(data_women[,2],data_women[,1], method="pearson")
+# rank correlation coefficients
+cor(data_women[,2],data_women[,1], method="kendall")
+cor(data_women[,2],data_women[,1], method="spearman")
+@
+\subsection*{c)}
+<<fig=TRUE>>=
+# Compare relationship for males and females
+plot(normtemp[,3],
+     normtemp[,1],
+     col=ifelse(normtemp[2] == 1, "blue", "red"),
+     main="Relationship Temperature ~ HR (boths)",
+     xlab = "heart rate",
+     ylab = "temperature",
+     pch=19)
+
+@
+\subsection*{Resume}
+  \begin{enumerate}
+    \item Scatterplots are made
+    \item We can see that boths males and females show the same result: higher heart rate leads to higher temperature overall.
+    \item The coefficients are calculated
+    \item Yes, relationship for males appear to be the same as for females.
+    \item The scatterplot is made
+    
+  \end{enumerate}
+
+
+	\section*{Task 104}
+	\subsection*{ a) }
+Considering that the two samples are distributed normally and have the same variance,
+$$\bar{X} - \bar{Y} \sim N(\mu_x - \mu_y, \sigma^2(1/n + 1/m))$$ where $n$ and $m$ denotes the number of observations from each sample. Since $s = m + n$:
+	$$\bar{X} - \bar{Y} \sim N(\mu_x - \mu_y, \sigma^2(1/n + 1/(s-n)).$$
+	We know that the confidence interval for the difference between two normally distributed means is
+	$$\bar{X} - \bar{Y} \pm t_{s-2,1-\alpha/2}S_{\bar{X} - \bar{Y}}$$
+	where $S_{\bar{X} - \bar{Y}} = S_p\sqrt{1/n + 1/(s-n)}$ and $S_p$ is the root of the pooled variance.\\
+	\newline
+	We see that for a given size $s$ we have to minimize $S_{\bar{X} - \bar{Y}}$ in order to minimize the length of the confidence interval.\\
+	\newline
+	So let us do that:
+	$$S_{\bar{X} - \bar{Y}} = S_p\sqrt{\frac{1}{n} + \frac{1}{s-n}} = S_p\sqrt{\frac{s-n + n}{n(s-n)}} = S_p\sqrt{\frac{s}{n(s-n)}}.$$
+	The expression is minimal, when $\frac{s}{n(s-n)}$ is minimal. FONC gives us:
+	$$\frac{\partial s(n(s-n)^{-1})}{\partial n} = \frac{2ns - s^2}{(ns - n^2)^2} \stackrel{!}{=} 0$$
+	$$n = \frac{s}{2}.$$
+	\newline
+	The second derivative is positive(or n = s/3 gives bigger value), so the expression is minimal when $n=m$, meaning that we should have the same size for both samples in order to get the shortest confidence interval.\\
+	
+	\subsection*{\color{red} b)}
+	
+In the second part of the problem, we are asked to make the test of $H_0: \mu_x = \mu_y$ as powerful as possible. There is a relationship between a confidence interval and the power of a test: shortest confidence interval gives the maximum rejection region and consequently the most powerful test. Hence, the most powerful test is when $n=m$.
+
+\section*{Task 108}
+X and Y are independent and normally dustributed, hence their difference is also normally distributed:
+
+$$ X-Y \sim N(\mu_{x} - \mu_{y}, \sigma^2_{x} + \sigma^2_{y})$$
+
+$$ P(X < Y) = P(X - Y < 0) $$
+We standardise to get:
+\begin{equation*}
+\begin{split}
+P(X - Y < 0) & = P(\frac{(x-y)- (\mu_{x} - \mu_{y})}{\sqrt{\sigma_{x} + \sigma_{y}}} < \frac{- (\mu_{x} - \mu_{y})}{\sqrt{\sigma_{x} + \sigma_{y}}}) \\
+&= \Phi( \frac{ -(\mu_{x} - \mu_{y})}{\sqrt{\sigma_{x} + \sigma_{y}}} ) = \Phi( \frac{ \mu_{x} - \mu_{y}}{\sqrt{\sigma_{x} + \sigma_{y}}} )
+\end{split}
+\end{equation*}
+
+
+\section*{Task 109}
+\subsection*{a)}
+
+Firstly, assume that X and Y are from normal distribution. \\
+
+PAIRED: \\
+\newline
+
+Consider the difference: 
+$$ D_i = X_i - Y_i $$
+$D_i$ are independent and with $\EV{D_i} = \mu_X - \mu_Y$ and $\Var{D_i} = \sigma^2_X + \sigma^2_Y + 2\rho\sigma_X\sigma_Y$
+So we have:
+
+\begin{gather*} 
+  D_i\sim N(\mu_X -\mu_Y, \sigma^2_X + \sigma^2_Y + 2\rho\sigma_X\sigma_Y)  \\
+\end{gather*}
+Considering:
+$ \hspace{15pt} Cov(X_i, Y_i)= 50, \hspace{15pt} \mu_X=\mu_Y=10, \hspace{15pt} \sigma^2_X=\sigma^2_Y=10^2, \hspace{15pt}  \rho=0.5, \hspace{15pt} i=1,...,25 $ \\
+We have:
+$$\bar{D_i} = (\bar{X}-\bar{Y})\sim N(\mu_X -\mu_Y, \frac{1}{25}*(100 + 100 - 0.5 * 10 * 10) = N(\mu_X -\mu_Y, 4)$$
+
+Normalizing:
+$$ Z_i = \frac{\bar{D_i} - (\mu_X - \mu_Y)}{2} \sim N(0,1)$$
+
+The test statistic under $ H_0$ is: $ Z=\frac{\bar{X} - \bar{Y} }{2} \sim N(0,1) $ \\
+\\
+For the power function we obtain: 
+
+\begin{align*}
+\Prob{|Z|>Z_{\frac{\alpha}{2}}} & =  1- \Prob{-Z_{\frac{\alpha}{2}}<Z<Z_{\frac{\alpha}{2}}} \\
+& = 1- \Prob{-Z_{\frac{\alpha}{2}} - \frac{\epsilon}{2} < \frac{\bar{X} - \bar{Y} -\epsilon }{2} < (Z_{\frac{\alpha}{2}} - \frac{\epsilon}{2}} \\
+& = 1- (\phi(Z_{\frac{\alpha}{2}} - \frac{\epsilon}{2}) - (1-(\phi(Z_{\frac{\alpha}{2}} + \frac{\epsilon}{2}) )) \\
+&= 2- (\phi(Z_{\frac{\alpha}{2}} - \frac{\epsilon}{2}) - \phi(Z_{\frac{\alpha}{2}} + \frac{\epsilon}{2})
+\end{align*}
+
+
+
+
+\subsection*{b)}
+
+For the unpaired design we have:  
+\begin{gather*}
+(X_i,Y_i) \sim N(\mu_X -\mu_Y, \sigma^2_X + \sigma^2_Y)  \\
+(\bar{X}-\bar{Y})\sim N(\mu_X -\mu_Y, \sigma^2_X(\frac{1}{25}+\frac{1}{25})=8)
+\end{gather*}
+
+The test statistic under $ H_0$ is: $ Z=\frac{\bar{X} - \bar{Y} }{\sqrt(8)} \sim N(0,1) $ \\
+\\
+For the power function we obtain: 
+
+\begin{align*}
+\Prob{|Z|>Z_{\frac{\alpha}{2}}} & =  1- \Prob{-Z_{\frac{\alpha}{2}}<Z<Z_{\frac{\alpha}{2}}} \\
+& = 1- \Prob{-Z_{\frac{\alpha}{2}} - \frac{\epsilon}{\sqrt(8)} < \frac{\bar{X} - \bar{Y} -\epsilon }{\sqrt(8)} < (Z_{\frac{\alpha}{2}} - \frac{\epsilon}{\sqrt(8)}} \\
+& = 1- (\phi(Z_{\frac{\alpha}{2}} - \frac{\epsilon}{\sqrt(8)}) - (1-(\phi(Z_{\frac{\alpha}{2}} + \frac{\epsilon}{\sqrt(8)}) )) \\
+&= 2- (\phi(Z_{\frac{\alpha}{2}} - \frac{\epsilon}{\sqrt(8)}) - \phi(Z_{\frac{\alpha}{2}} + \frac{\epsilon}{\sqrt(8)})
+\end{align*}
+
+Finally we can plot: 
+
+<<fig=TRUE>>=
+plot(power.t.test(n = 25,
+                  delta = 0:10,
+                  sd = 10,
+                  sig.level = 0.05,
+                  power = NULL,
+                  type = "paired")$power,
+     type = "l",
+     col = "darkgreen",
+     ylab = "Power")
+
+lines(power.t.test(n = 25,
+                   delta = 0:10,
+                   sd = 8,
+                   sig.level = 0.05,
+                   power = NULL,
+                   type = "two.sample")$power,
+      col = "red")
+@
+
+From the graphs it is obvious that the powers for the paired case are always larger than the ones
+corresponding to the unpaired case. We conclude that the power of the paired design
+is greater than the power of the unpaired (independent) design since a correlation is
+positive. Therefore we might use pairing in order to obtain more powerful tests and
+greater precision.
+
+\section*{Task 113}
+\section*{\color{red} Q113}
+\textbf{a)}\\
+\newline
+For the confidence interval we used the formula from the lecture notes:
+$$(\bar{X} - \bar{Y}) \pm t_{m+n-2,1-\alpha/2} s_{\bar{X} - \bar{Y}}$$
+
+<<>>=
+library(UsingR)
+head(normtemp)
+data_men <- subset.data.frame(normtemp,gender == 1, select=c(temperature, hr)) 
+data_women <- subset.data.frame(normtemp,gender == 2, select=c(temperature, hr)) 
+mean1<-mean(data_men[,1])
+sigma1<-sd(data_men[,1])
+mean2<-mean(data_women[,1])
+sigma2<- sd(data_women[,1])
+s_p<-sqrt(((65 - 1) * sigma1^2 + (65 - 1) * sigma2^2) / (65 + 65 - 2))
+s_delta<-s_p*sqrt(1/65 + 1/65)
+mean1-mean2
+lower<-mean1-mean2-qt(0.975, 65 + 65 - 2)*s_delta
+upper<-mean1-mean2+qt(0.975, 65 + 65 - 2)*s_delta
+interval<-c(lower, upper)
+interval
+@
+We can conclude that with the 95\% confidence, the true mean of the population is between -0.54 and -0.04.\\ So, the difference of mean has no high deviation, and we can conclude, that female body temperature is slightly higher than males.
+\newline
+Now, let's draw the qqplots for males and females body temperature to see how much our data fits to normal distribution.
+<<fig=TRUE>>=
+par(mfrow=c(1,2))
+qqnorm(data_men[,1],main="Body temperatures of males")
+qqline(data_men[,1])
+qqnorm(data_women[,1],main="Body temperatures of females")
+qqline(data_women[,1])
+@
+\newline
+According to the qqplots we can conclude that body temperature are approximately normal distributed for males and females, but for females we have heavier tails. So, use of  normal  approximation is reasonable in this case.\\
+\newline
+\textbf{b)}\\
+We are doing the same procedure but with variable heart rate.\\
+\newline
+<<>>=
+mean1<-mean(data_men[,2])
+sigma1<-sd(data_men[,2])
+mean2<-mean(data_women[,2])
+sigma2<- sd(data_women[,2])
+s_p<-sqrt(((65 - 1) * sigma1^2 + (65 - 1) * sigma2^2) / (65 + 65 - 2))
+s_delta<-s_p*sqrt(1/65 + 1/65)
+mean1-mean2
+lower<-mean1-mean2-qt(0.975, 65 + 65 - 2)*s_delta
+upper<-mean1-mean2+qt(0.975, 65 + 65 - 2)*s_delta
+interval<-c(lower, upper)
+interval
+@
+
+In this case wee see that the difference mean is -0.78 (it means that females have slightly higher heart rate than males), the deviation interval for mean is higher in this case  (-3.24,  1.67).
+<<fig=TRUE>>=
+par(mfrow=c(1,2))
+qqnorm(data_men[,2],main="Heart rates of males")
+qqline(data_men[,2])
+qqnorm(data_women[,2],main="Heart rates of females")
+qqline(data_women[,2])
+@
+\newline
+On the qqplot it is visible, both variables are approximately normally distributed. So, we can use normal  approximation. And found confidence interval is reasonable.
+\newline
+\textbf{c)}\\
+Firstly we will do parametric t-test(comparing 2 means) for the 2 independent samples:\\
+\newline
+$H_0$: the difference of body temepatures between males and females is equal to 0;\\
+$H_A$: the difference of body temepatures between males and females is not equal to 0.
+<<>>=
+t.test(data_men[,1],data_women[,1])
+@
+
+P-value = 0.02394, so we reject $H_0$ that the difference of body temepatures between males and females is equal to 0.\\
+Now the same t-test but for heart rate:\\
+\newline
+$H_0$: the difference of heart rates between males and females is equal to 0;\\
+$H_A$: the difference of heart rates between males and females is not equal to 0.
+<<>>=
+t.test(data_men[,2],data_women[,2])
+@
+
+P-value = 0.5287, hence we accept $H_0$ that the difference of heart rates between males and females is equal to 0.\\
+\newline
+Now we will use nonparametric test.
+<<>>=
+wilcox.test(data_men[,1],data_women[,1])
+@
+
+We can make the same conclusion as with parametric test aqbove, that the difference of body temepatures between males and females is not equal to 0.
+<<>>=
+wilcox.test(data_men[,2],data_women[,2])
+@
+And here we see the same result as above in case of parametric case. We will accept $H_0$, there is no difference in heart rate between males and females.
+
+\section*{Task 114}
+$H_0$ - "There are no differences", $H_1$ - "There are differences".\\
+\newline
+So let us have a closer look on the data.
+<<>>=
+father <- matrix(c(51,14,38,38,16,46),nrow=3)
+colnames(father) <- c("Female", "Male")
+rownames(father) <- c("Flying Fighters", "Flying Transports", "Not Flying")
+father
+@
+So that is the data and graphically we can illustrate it with mosaicplots:
+<<fig=T>>=
+mosaicplot(father, main="Data comparison")
+@
+\newline
+We see that non-flying people in the data have indeed less girls than boys born. Let us check, if this impression is statistically significant.\\
+We can now to try to investigate the data by applying the Pearson's Chi-square test for homogeneity. We will test the table overall and again each group against each other. 
+<<>>=
+chisq.test(father)
+@
+We stick to the null that there is no difference between the 3 groups.
+<<>>=
+# flying fighters vs flying transport
+chisq.test(father[1:2,1:2])
+@
+We cannot reject the null. There is no significant difference between the two categories of pilots.
+<<>>=
+# flying fighters vs not flying
+chisq.test(father[c(1,3),1:2])
+@
+We also cannot reject the null. There is no significant difference between flying fighters and the group of non-flyers.
+<<>>=
+# flying transport vs not flying
+chisq.test(father[2:3,1:2])
+@
+We also cannot reject the null. There is no difference between transporting flyers and the group of non-flyers.\\
+\newline
+Let us now have a look on the flyers (sum of pilots for transports and fights) together vs the non-flyers:
+<<>>=
+fly_nonfly <- rbind(colSums(father[1:2,]), father[3,])
+colnames(fly_nonfly) <- c("Female", "Male")
+rownames(fly_nonfly) <- c("Pilots", "Not Flying")
+fly_nonfly
+# pilots vs non-flyers
+chisq.test(fly_nonfly)
+@
+We see also here we cannot find a significant difference. Thus, we stick to the null hypothesis that there are no differences between flyers and non-flyers wrt to there offsprings.\\
+\newline
+The exercise also asks to compare it with the overall sex ratio of the United states which is $105,37/100$. From this ratio we can calculate the probability to be a boy/girl in the US and find out what the expected numbers of girls/boys should be. We can test again with a the same test procedures as above.
+<<>>=
+p_boy <- 105.37/205.37
+p_girl <- 1- p_boy
+# likelihood to be boy/girl in the US
+c(p_boy,p_girl)
+@
+Given this "theoretical" probabilities, we can test again with the chi-squared test.
+<<>>=
+chisq.test(father,correct = F, p=c(p_boy,p_girl))
+@
+Also compared to the US sex ratio, our data doesn't differ significantly. We don't reject the null. Our data seems to be conistent with the overall US sex ratio.
+
+
+\section*{Task 115}
+We use the Chi-squared Test for independence, which tests $H_{0} : \pi_{ij}= \pi{i.}\pi_{.j}$ against $\pi_{ij}$'s are free, where i's are numbers of the column and j's are - rows.
+ \\The test has the following form:
+ \begin{equation*}
+ \begin{split}
+ X^2 = \sum^{I}_{i=1}\sum^{J}_{j=1} \frac{(n_{ij} - n_{i.}n_{.j}/n)^2}{n_{i.}n_{.j}/n} \sim \chi^2_{(J-1)(I-1)}
+ \end{split}
+ \end{equation*}
+<<>>=
+A <- matrix(c(8,15,13,14,19,15,15,4,7,3,1,4),3,4)
+A
+chisq.test(A)
+@
+We have p-value to be larger, than 0.05, thus we do not reject the hypothesis that there is no dependence between courses and grades at 5\% significance level.
+
+\section*{Task 116}
+We can build up in R our exercise in order to use the Pearson's Chi-Square test statistic. \\
+First we create the matrix: 
+      
+<<>>=
+matrice <- matrix(c(14,16,8,2,133,180,93,81,12,14,12,1,241,285,139,153,11,6,8,17, 259,265,221,204),byrow=TRUE,nrow=6) 
+rownames(matrice)<-c("a PB such","a NPB such","and FB I","and NFB I","the PB on", "the NPB on") 
+colnames(matrice)<-c("Sense and Sensibility","Emma","Sandition I","Sandition II") 
+matrice
+@
+      Now we use the test for different words: 
+      
+<<>>=
+chisq.test(matrice[ , 1 : 2])
+@
+      With level of significance of $5 \%$, the $\chi^2_{6}=12.59 $, therefore we accept the null: there is no difference between the first two words taken into consideration (sense and sensibility and Emma)
+<<>>=
+chisq.test(matrice[ , 1 : 3])
+@
+With level of significance of $5 \%$, the $\chi^2_{10}=18.31 $, therefore we reject the null: there is difference between the first three words taken into consideration.
+<<>>=
+chisq.test(matrice[ , 3 : 4])
+@
+With level of significance of $5 \%$, the $\chi^2_{5}=11.07 $, therefore we reject null: there is difference between the third and fourth words taken into consideration.
+<<>>=
+chisq.test(matrice[ , 1 : 4])
+@
+
+
+\section*{Task 117}
+
+We will use Chi-Squared Test of Independence. Firstly, we need to formulate hypothesis:\\
+\newline
+$H_0: \pi_{ij} = \pi_i \pi_j$, \,\,\, $i = 1,2,3, j = 1,2,3$ (rows and columns classifications are independent)\\
+$H_A: \pi_{ij}$ are free\\
+<<>>=
+tab <- matrix(c(79, 58, 49, 10, 8, 9, 10, 34, 42), nrow = 3, byrow = TRUE)
+rownames(tab) <- c("Favorable", "Neutral", "Unfavorable")
+colnames(tab) <- c("Cautious", "Midroad", "Explorer")
+tab
+chisq.test(tab)
+@
+
+According to p-value, which is less than 0.05, we reject $H_0$, so we conclude there is the relationship between  personality type and attitude towards small cars. And we can say that the preference to the small cars is depent on the personality of driver.
+If we have a look at frequencies plot:
+<<fig=TRUE>>=
+mosaicplot(t(tab))
+@
+
+We can notice that small cars are more favorable for cautious people. And favorability decreases for middle-of-the-road and explorers. 
+
+
+\end{document}

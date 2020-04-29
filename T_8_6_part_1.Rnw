@@ -1,0 +1,428 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,mathtools,bm,etoolbox, amsthm, bbm}
+\usepackage{amsfonts}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{listings}
+\usepackage{inconsolata}
+%% We used knitr.
+%% To compile with sweave, delete it and insert sweave concordance line.
+<<echo=FALSE>>=
+  options(width=60)
+
+listing <- function(x, options) {
+  paste("\\begin{lstlisting}[basicstyle=\\ttfamily,breaklines=true]\n",
+        x, "\\end{lstlisting}\n", sep = "")
+}
+knit_hooks$set(source=listing, output=listing)
+@
+
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+\newcommand{\EV}[1]{\mathbb{E}\left[#1\right]}
+\newcommand{\Var}[1]{\text{Var}\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+
+\author{Team 8}
+\title{Statistics 2 Unit 5}
+\begin{document}
+
+
+	\maketitle
+	\tableofcontents
+
+\newpage
+
+\section{Task 85}
+\subsection{ a)}
+We are testig simple against composite hypothesis, thus the generalized likelihood ratio is in the following form:\\
+
+\begin{equation*}
+\Lambda = \frac{{n \choose x}(0.5)^{n}}{sup_{p \in (0, 1)}{n\choose x} p^{x} (1-p)^{n-x}}
+\end{equation*}
+Maximizing this the denominator first, we can find
+\begin{equation*}
+\begin{split}
+log({n\choose x} p^{x} (1-p)^{n-x}) & = const + xlog(p) + (n - x) log(1-p)\\
+\frac{\partial l(f)}{\partial p} & = \frac{x}{p} - \frac{n-x}{1-p} = 0\\
+x - x -np +xp & = 0\\
+p &= \frac{x}{n}\\
+\mbox{Thus, the GLR is the following expression:}\\
+\Lambda &= \frac{{n \choose x}(0.5)^{n}}{{n\choose x} (\frac{x}{n})^{x} (1-\frac{x}{n})^{n-x}}\\
+&= \frac{(0.5)^n}{(\frac{x}{n})^x (1 - \frac{x}{n})^{n-x}}
+\end{split}
+\end{equation*}
+
+\subsection{ b)}
+The test rejects the null for the small values of $\Lambda$, which can be the case if, after we make a substitution for $y = x- \frac{n}{2}$ $\Leftrightarrow$ $x= y +\frac{n}{2}$:\\
+\begin{equation*}
+\begin{split}
+\Lambda &= \frac{(0.5)^{n}}{(\frac{y +\frac{n}{2}}{n})^{y +\frac{n}{2}} (1-\frac{y +\frac{n}{2}}{n})^{n-y +\frac{n}{2}}}\\
+&= \frac{(\frac{1}{2})^n}{(\frac{1}{2} + \frac{y}{n})^{y + \frac{n}{2}}(\frac{1}{2}- \frac{y}{n})^{\frac{n}{2} - y}}
+\end{split}
+\end{equation*}
+As $\Lambda(y)$ is symmetric and achieves its maximum at 0, we can conclude, that the null hypothesis is rejected for large values of $|x- \frac{n}{2}|$.
+\subsection{ c)}
+\\Under the null the cdf of X is $f(x)={n \choose x}(0.5)^{n}$ and the significance level is defined as:\\
+\begin{equation*}
+\begin{split}
+\alpha = P( X > c| H_{0}) &= 1 - F(c)\\
+P(|X - \frac{n}{2}| > c) &= P(c + \frac{n}{2}< X) + P(X < -c + \frac{n}{2} ) \\
+&= 1 - F(c + \frac{n}{2}) + F(-c + \frac{n}{2})\\
+&= \sum_{c + \frac{n}{2}+1}^{n} {n \choose x}(0.5)^{n} + \sum_{0}^{-c + \frac{n}{2}-1} {n \choose x}(0.5)^{n}\\
+\end{split}
+\end{equation*}
+\subsection{ d)}
+\\Having $n = 10$ and $c = 2$, we can compute the significance level:\\
+\begin{equation*}
+\begin{split}
+\alpha = P( X > c| H_{0}) &= 1 - F(c)\\
+P(|X - 5| > 2) &=  (0.5)^{10}(\sum_{8}^{10} {10 \choose x} + \sum_{0}^{2} {10 \choose x})\\
+&= 0.109375
+\end{split}
+\end{equation*}
+
+
+\section{Task 86}
+\textbf{a)}
+TRUE \\
+Because $L_0 > L_1$. \\
+\\
+
+\textbf{b)}
+FALSE \\
+Because we reject when p-value < significance level. In our case is the other way around. \\
+\\
+
+\textbf{c)}
+TRUE \\
+p-value<significance level. so p-value < 0.06. \\
+\\
+
+\textbf{d)}
+FALSE \\
+P-value is the probability of rejecting the null hypothesis when the null is true. \\
+\\
+\textbf{e)}
+FALSE \\
+the p-value differs from the likelihood ratio. \\
+\\
+\textbf{f)}
+FALSE \\
+<<>>=
+pchisq(8.5,4,lower.tail=FALSE)<0.05
+@
+
+
+
+
+\section{Task 87}
+\textbf{a)}\\
+\newline
+The task says that test rejects for large values of $\mid T \mid$. We can write the p - value (probability of rejection $H_0$, when $H_0$ was true):
+$$\text{p-value} = P(\mid T \mid} > 1.50|H_0) = P(T>1.50) + P(T<-1.50)$$
+Next, according to the task $T$ statistics has standard normal diustrubution under null hypothesis.
+$$\text{p-value} = 1 - \Phi(1.50) + \Phi(-1.50) = 1 - \Phi(1.50) + 1 - \Phi(1.50) = 2 - 2\Phi(1.50) = 0.1336144$$
+
+<<>>=
+p_value = 2 - 2*pnorm(1.50)
+p_value
+@
+\newline
+\textbf{b)}\\
+\newline
+Now, we do the same but for the test:
+$$\text{p-value} = P(T > 1.50|H_0) = 1 - \Phi(1.50) = 0.0668072$$
+
+<<>>=
+p_value2 = 1 - pnorm(1.50)
+p_value2
+@
+
+
+
+
+\section{Task 88}
+In this exercise a significance level $\alpha$ is given for which a test statistics rejects if it is greater than a certain thresholds.
+$$\alpha = \Prob{T>t_0}.$$
+Let's consider a monotone-increasing transformation of the test statistics and of the threshold:
+$$\gamma = \Prob{g(T)>g(t_0)}.$$
+The exercise asks, if this monotone-increasing transformation still is a $\alpha$-test, i.e. does it hold that $\alpha = \gamma$?\\
+\newline
+Yes, it holds, the monotone-increasing transformation is a level $\alpha$ test. Since the transformation of the test statistics and the threshold are monotone-increasing and it holds that
+$$T>t_0 \stackrel{mon.incr}{\iff} g(T) > g(t_0)$$
+what is roughly the definition of a strictly increasing function.\\
+Note that we can take inverses of monotone increasing functions. Thus, by taking the probability:
+$$\Prob{g(T) > g(t_0)} = \Prob{T>t_0} = \alpha.$$
+We see that a monotone-increasing transformation of the test-statistic and the threshold yields again a level $\alpha$ test.
+
+
+\section{Task 89}
+\subsection{ a)}
+Let the value of the observed $T$ statistic be $T=t$. Under $H_{0}$, \\
+$$p-\text{value} = P(T > t) = 1 - P(T \leq t) = 1 - F(t) \Rightarrow V = 1 - F(T)$$
+
+\subsection{ b)}
+To show that V is uniformly distributed it is enough to show that F(T) is. \\
+We know that F is continuous, thus we can find:\\
+
+$$P(F(T) \leq t) &= P(T \leq F^{-1}(t))$$
+$$&=F(F^{-1}(t)) = t$$
+Note that the probability lies in $[0;1]$ and this shows that the domain of F is $[0;1]$ which leads to the conclusion, that F is uniformly distributed on $[0;1]$ and so is V.
+
+
+\subsection{ c) and d)}
+
+
+\begin{equation*}
+\begin{split}
+P(V > 0.1| H_{0}) &= 1 - F(0.1) \\
+&= 1 - 0.1 = 0.9\\
+P(V < \alpha| H_{0}) = 1 - P(V > \alpha| H_{0})\\ 
+&= 1 - (1 - \alpha)\\
+&=\alpha.
+\end{split}
+\end{equation*}
+
+\section{Task 90}
+We retrieve the log-likelihood function from the probability density function of the Poisson distribution: 
+$$P(X=x) = \frac{\lambda^x}{x!} e^{-\lambda}$$
+With the $\theta := (\lambda_1, \dots, \lambda_n)$
+\newline
+Log-likelihood:
+\begin{align}
+L(\theta|x_1, \dots, x_n) &= \prod_{i=1}^n \frac{\lambda^{x_i}}{x_i!} e^{-\lambda_i} \\
+l(\theta|x_1, \dots, x_n) &= \sum_{i=1}^n \log \left( \frac{\lambda_i^{x_i}}{x_i!} e^{-\lambda_i} \right)\\
+= \sum_{i=1}^n (x_i \log(\lambda_i) - \log(x_i !) - \lambda_i) \\
+\qquad \qquad \frac{\partial l(\theta|x_1, \dots, x_n)}{\partial \lambda_k} &= -1 + \frac{x_k}{\lambda_k} \\
+\qquad S(\theta) &= \left(-1 + \frac{x_1}{\lambda_1}, \dots, -1 + \frac{x_n}{\lambda_n} \right)'
+\end{align}
+By setting all first partial derivative w.r.t. $\lambda$ to zero, we obtain $\forall \, k \in \{1,\dots,n\}$ as the MLE: $\lambda_k^{MLE} = x_k$ but with the null: $\lambda_1 = \dots = \lambda_n$, we obtain the usual MLE of a Poisson: $\lambda^{MLE} = \bar{X}$.
+\newline
+Fisher information matrix:
+\begin{align}
+I_{ij}(\theta) = - \frac{1}{n}E\left({\frac{\partial^2 l}{\partial \lambda_i \partial \lambda_j}}\right) = \begin{cases} 0, \qquad & \text{if } i \neq j \\ \frac{\bar{X}} {\lambda_i^2}, &\text{if } i = j \text{Because the $X_i$ are Poisson} \end{cases} \\
+\Rightarrow \qquad I(\theta) = \text{diag}\left(\frac{\bar{X}} {\lambda_1^2}, \dots,\frac{\bar{X}} {\lambda_n^2} \right) \\
+I(\theta)^{-1} =  \text{diag}\left(\frac{\lambda_1^2}{\bar{X}}, \ldots, \frac{\lambda_n^2}{\bar{X}}\right)
+\end{align}
+Test statistic:
+\begin{align}
+T_S = S(\theta)' I(\theta)^{-1} S(\theta) = \sum_{i=1}^n \left(\frac{\lambda_i^2}{\bar{X}} - \frac{\lambda_i x_i}{\bar{X}} - \frac{\lambda_i x_i}{\bar{X}} + \frac{x^2_i}{\bar{X}} \right) \\
+= \sum_{i=1}^n \frac{(x_i - \lambda_i)^2}{\bar{X}}
+\end{align}
+By using $\lambda_i^{MLE} = \bar{X}$ we get:
+\begin{align}
+T_S = \sum_{i=1}^n \frac{(x_i - \bar{X})^2}{\bar{X}}
+\end{align}
+
+\section{Task 91}
+We will use chi-squared test in order to answer the question in the task.\\
+First of all, in order to check whether the temporal trend takes place, we should state that our data (observations of number of bites) is uniformly distributed, i.e. every day we observe the same number of bites, does not matter which lunar period we have. Let's formulate the hypotheses:\\
+\newline
+$H_0:$ Number of bites has uniform distribution within lunar cycle\\
+$H_A:$ There is a temporal trend in the number of bites.\\
+\newline
+Now, let's recall the formula for Pearson's chi-squared statistic:
+$$\chi^2 = \sum_{i=1}^{n} \frac{(O_i - E_i)^2}{E_i}$$
+where\\
+$O_i$ is the number of observations of period i.\\
+$E_i$ is expected frequency of period i. \\
+$n$ is the number of periods in the lunar cycle.\\
+\newline
+The expected frequency will be:
+$$E_i = Np_i$$
+For the dicrete uniform distribution we have that probability of every observation is equal. So, we have 29 days, hence probability for the period $i$ = 3/29, where $i \in [1,9]$, and for the last period we have only 2 days, so the probability will be 2/29.\\
+\newpage
+Now, we will calculate everything what we described above:
+<<>>=
+period <- seq(1:10)
+observations <- c(137, 150, 163, 201, 269, 155, 142, 146, 148, 110)
+prob_uniform<-c(rep(3/29,9), 2/29)
+ev<-prob_uniform*sum(observations)
+f<-function(x) ((observations[x] - ev[x])^2)/ev[x]
+test_Chi<-sum(sapply(period, f))
+test_Chi
+p_value <- pchisq(test_Chi, df = length(observations) - 1, ncp = 0, lower.tail = FALSE, log.p = FALSE)
+p_value
+@
+Since p-value is less than 0.05 (we test with the confidence level 95\% and consequently $\alpha$ = 0.05), we reject $H_0$ that number of bites is uniformly distributed.
+
+\section{Task 92}
+
+We have given a multinomial distribution with only two cells. First, there are two important relationships to note. We have $n=X_1+X_2$ and $1= p_1 + p_2$. Thus we can substitute in our formula as follows and derive the expression from the exercise:
+$$X^2 = \sum_{i=1}^{2} \frac{(X_i - np_i)^2}{np_i} = \frac{(X_1 - np_1)^2}{np_1} + \frac{(X_2 - np_2)^2}{np_2}$$
+$$= \frac{(X_1 - np_1)^2}{np_1} + \frac{((n-X_1) - n(1-p_1))^2}{n(1-p_1)}$$
+$$= \frac{(X_1 - np_1)^2}{np_1} + \frac{(np_1 -X_1 )^2}{n(1-p_1)}$$
+$$= \frac{(1-p_1)(X_1 - np_1)^2 + p_1(np_1 -X_1 )^2}{np_1(1-p_1)} = \frac{(X_1 - np_1)^2}{np_1(1-p_1)}.$$
+And well, this is just the expression we should derive!\\
+\newline
+\newline
+Let us now show that
+$$\frac{X_1 - np_1}{\sqrt{np_1(1-p_1)}}$$
+is approximately standard normal.\\
+First note that the $X_1$ is the number of observations, i.e. the sum of observed Bernoulli-variables (e.g. $1$ if observed and $0$ if not). The mean of a Bernoulli distribution is just $\mu=p$ and the standard deviation is just $\sigma =\sqrt{p(1-p)}.$\\ 
+By taking that into account, our desired result follows straight from the Central Limit Theorem.\\
+Recall:\\
+Let $R_1,...,R_n$ be iid random variables with mean $\mu$, variance $\sigma^2$ and a finite third moment. Denote the sum of the random variables as $X_1$. Then
+$$\lim_{n\to\infty} \Prob{\frac{X_1 - n\mu}{\sqrt{n}\sigma}\le z} = \Phi(z), ~~ z \in (-\infty, \infty).$$
+
+Thus, by plugging in the mean and the standard deviation of the Bernoulli distribution, the expression $$\frac{X_1 - np_1}{\sqrt{np_1(1-p_1)}}$$ is approximately standard normal by the CLT (if the observations are independent (that is namely not mentioned in the exercise)).\\
+\newline
+The square of a standard normal variable is just $\mathcal{X}^2$ distributed with $1$ degree of freedom. Since we have shown that the expression - which is just the square root of the $X^2$ - is approximately normal, $X^2$ has to be $\mathcal{X}^2$ distributed.
+
+\section{Task 93}
+The null is ``p's are all the same'', thus one can write the GLR as follows:\\
+\begin{equation*}
+\begin{split}
+\Lambda = \frac{sup_{\Theta_{0}} \prod^{m}_{i = 1} {n_{i} \choose x_{i}}(p)^{x_{i}}(1-p)^{n_{i}-x_{i}}}{sup_{p \in \Theta_{0} \cup \Theta_{A}}\prod^m_{i=1}{n_{i}\choose x_{i}} p_{i}^{x_{i}} (1-p_{i})^{n_{i}-x_{i}}}
+\end{split}
+\end{equation*}
+Maximizing this the nominator first, we can find
+\begin{equation*}
+\begin{split}
+log(\prod^{m}_{1} {n_{i}\choose x_{i}} p^{x_{i}} (1-p)^{n_{i}-x_{i}}) & = const + \sum^{m}_{i=1} x_{i}log(p) + \sum^{m}_{i=1}(n_{i} - x_{i}) log(1-p)\\
+\frac{\partial l(f)}{\partial p} & = \frac{\sum^{m}_{i=1}x_{i}}{p} - \frac{\sum^{m}_{i=1}(n_{i}-x_{i})}{1-p} = 0\\
+p\sum^{m}_{i=1}(n_{i}-x_{i}) & = \sum^{m}_{i=1}x_{i} - p\sum^{m}_{i=1}x_{i}\\
+p &= \frac{\sum^{m}_{i=1} x_{i}}{\sum^{m}_{i=1}n_{i}}\\
+\end{split}
+\end{equation*}
+while when we treat p's to be unequal and maximize wrt to each, we get $p_{i} = \frac{x_{i}}{n_{i}} $ 
+Thus, we have:
+
+\begin{equation*}
+\begin{split}
+T &= \frac{\prod^{m}_{i = 1} {n_{i} \choose x_{i}}(\frac{\sum^{m}_{i=1} x_{i}}{\sum^{m}_{i=1}n_{i}})^{x_{i}}(1-\frac{\sum^{m}_{i=1} x_{i}}{\sum^{m}_{i=1}n_{i}})^{n_{i}-x_{i}}}{\prod^m_{i=1}{n_{i}\choose x_{i}} (\frac{x_{i}}{n_{i}})^{x_{i}} (1-\frac{x_{i}}{n_{i}})^{n_{i}-x_{i}}}\\
+&= \frac{\prod^{m}_{i = 1} (\frac{\sum^{m}_{i=1} x_{i}}{\sum^{m}_{i=1}n_{i}})^{x_{i}}(1-\frac{\sum^{m}_{i=1} x_{i}}{\sum^{m}_{i=1}n_{i}})^{n_{i}-x}}{\prod^m_{i=1} (\frac{x_{i}}{n_{i}})^{x_{i}} (1-\frac{x_{i}}{n_{i}})^{n_{i}-x_{i}}} \sim \chi^2_{m-1}
+\end{split}
+\end{equation*}
+*According to Wilk's theorem, which states that as n goes to infinity the $-2log(\Lambda)$ is assymptotically Chi-squared distributed with number of parameters of alternative H minus number of parameters of null H, in our case m-1.
+
+\newpage
+\section{Task 98}
+
+<<>>=
+bodytemp <- read.table(file.choose(), header = TRUE,  sep = ",",  dec = ".")
+head(bodytemp) 
+temperature <- as.vector(bodytemp[, 1])
+gender <- as.vector(bodytemp[, 2])
+rate <- as.vector(bodytemp[, 3])
+@
+\subsection*{a)}
+MALE:
+<<fig=TRUE>>=
+qqnorm(bodytemp[1:65, 1], main= "normal QQ male temperature"  )
+qqline(bodytemp[1:65, 1])
+@
+\\
+So it seems they are normally distributed, even if the tails are slightly heavier.\\
+\\
+FEMALE:
+<<fig=TRUE>>=
+qqnorm(bodytemp[65:130, 1], main= "normal QQ female temperature")
+qqline(bodytemp[65:130, 1])
+@
+\\
+In the female case tails are even heavier and there seem to be some outliers. \\
+\\
+We can now use the bootsstrapping method to get normal samples and compare them with the initial data. \\
+\\
+MALE
+<<fig=TRUE>>=
+mean_m<-mean(bodytemp[1:65,1])
+sd_m<-sd(bodytemp[1:65,1])
+sample1<-rnorm(1000, mean_m, sd_m)
+qqplot(bodytemp[1:65,1], sample1, col= c("red", "blue"), main= "empirical-vs-theoretical QQ male-temp 1" )
+@
+\newline
+With red: the empirical data, blue: normalized data.
+<<fig=TRUE>>=
+sample2<-rnorm(1000, mean_m, sd_m)
+qqplot(bodytemp[1:65,1], sample2, col= c("red", "blue"), main= "empirical-vs-theoretical QQ male-temp 2"  )
+@
+
+FEMALE
+<<fig=TRUE>>=
+mean_f<-mean(bodytemp[65:130,1])
+sd_f<-sd(bodytemp[65:130,1])
+sample3<-rnorm(1000, mean_f, sd_f)
+qqplot(bodytemp[65:130,1], sample1, col= c("red", "blue") , main= "empirical-vs-theoretical QQ female-temp 1" )
+@
+\\
+With red: the empirical data, blue: normalized data.
+<<fig=TRUE>>=
+sample4<-rnorm(1000, mean_f, sd_f)
+qqplot(bodytemp[65:130,1], sample2, col= c("red", "blue"), main= "empirical-vs-theoretical QQ female-temp 2" )
+@
+\newline
+It seems that we have obtained not a perfect but a reasonable fit despite heavier tails.
+
+\subsection*{b)}
+
+MALE:
+<<fig=TRUE>>=
+qqnorm(bodytemp[1:65, 3], main= "normal QQ heart male")
+qqline(bodytemp[1:65, 3])
+@
+\\
+So it seems they are normally distributed.\\
+\\
+FEMALE:
+<<fig=TRUE>>=
+qqnorm(bodytemp[65:130, 3], main= "normal QQ heart female")
+qqline(bodytemp[65:130, 3])
+@
+\\
+In the female case tails are heavy! \\
+\\
+MALE
+<<fig=TRUE>>=
+mean2_m<-mean(bodytemp[1:65,3])
+sd2_m<-sd(bodytemp[1:65,3])
+sample5<-rnorm(1000, mean2_m, sd2_m)
+qqplot(bodytemp[1:65,3], sample5, col= c("red", "blue") , main= "empirical-vs-theoretical QQ male-heart 1" )
+@
+\newline
+With red: the empirical data, blue: normalized data.
+<<fig=TRUE>>=
+sample6<-rnorm(1000, mean2_m, sd2_m)
+qqplot(bodytemp[1:65,3], sample6, col= c("red", "blue"), main= "empirical-vs-theoretical QQ male-heart 2" )
+@
+
+FEMALE
+<<fig=TRUE>>=
+mean2_f<-mean(bodytemp[65:130,3])
+sd2_f<-sd(bodytemp[65:130,3])
+sample7<-rnorm(1000, mean2_f, sd2_f)
+qqplot(bodytemp[65:130,3], sample7, col= c("red", "blue"), main= "empirical-vs-theoretical QQ female-heart 1" )
+@
+\\
+With red: the empirical data, blue: normalized data.
+<<fig=TRUE>>=
+sample8<-rnorm(1000, mean2_f, sd2_f)
+qqplot(bodytemp[65:130,3], sample8, col= c("red", "blue"), main= "empirical-vs-theoretical QQ female-heart 2" )
+@
+\newline
+In both cases we can say the distributions fit the normal one quite well.
+
+\subsection*{c)}
+Since the data seems to follow normal distribution, we can use a t-test.\newline
+\\
+MALE:
+
+<<>>=
+mu0=98.6
+t.test(bodytemp[1:65, 1], mu=mu0)
+@
+Therefore we reject the null hypothesis.\\
+\\
+FEMALE
+
+<<>>=
+t.test(bodytemp[65:130, 1], mu=mu0)
+@
+We, again, reject the null. however, if we would have chosen a $99\%$ confidence interval, we would have accepted the null.
+
+\end{document}

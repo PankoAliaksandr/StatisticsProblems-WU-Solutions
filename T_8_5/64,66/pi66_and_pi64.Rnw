@@ -1,0 +1,114 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{listings}
+\usepackage{inconsolata}
+%% We used knitr.
+%% To compile with sweave, delete it and insert sweave concordance line.
+<<echo=FALSE>>=
+  options(width=60)
+
+listing <- function(x, options) {
+  paste("\\begin{lstlisting}[basicstyle=\\ttfamily,breaklines=true]\n",
+        x, "\\end{lstlisting}\n", sep = "")
+}
+knit_hooks$set(source=listing, output=listing)
+@
+
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+\author{Team 8}
+\title{Statistics 2 Unit 1}
+\begin{document}
+
+
+	\maketitle
+	\tableofcontents
+
+\newpage
+
+\section{Task PI64}
+Let $X_1,...,X_n$ be iid from a geometric distribution, i.e. $f(x) = p(1-p)^x, ~ x=0,1,...$.
+\subsection{ a)}
+The parameter by the MME is 
+$$\hat{\mu_1} = \bar{X} = \frac{1-\hat{p}}{\hat{p}} \iff \hat{p} = \frac{1}{\bar{X}+1}.$$
+
+
+\subsection{ b)}
+The parameter by the MLE is
+$$l(p,x_i) = \prod_{i=0}^{n} p(1-p)^{x_i} = p^n(1-p)^{\sum x_i}$$
+$$\frac{\partial log(l(x))}{\partial p} = \frac{1}{p} + \frac{x}{1-p} \stackrel{!}{=} 0$$
+$$\hat{p} = \frac{1}{\bar{X}+1}.$$
+
+\subsection{ c)}
+The Fisher information was already calculated in the exercise 62.
+$$I(p) = \frac{1}{p^2 (1-p)}$$
+The asymptotic variance of the MLE is given by
+$$\frac{1}{nI(p)} = n ~ p^2 ~ (1-p).$$
+
+
+\subsection{ d)}
+The posterior is defined as $f(p|x_i) \propto l(p,x_i) ~ f(p).$ \\
+So we get for the uniform distribution on $[0,1]$ the following posterior:
+$$f(p|x_i) \propto p^n(1-p)^{\sum x_i} ~ 1 = \propto p^n(1-p)^{\sum x_i}.$$
+We see the posterior distribution can be written as a beta distribution with parameters $(\alpha=2, \beta = \sum x_i + 1)$.\\
+The posterior mean can be then found by using the mean of a beta:
+$$\EV{X} = \frac{\alpha}{\alpha + \beta} = \frac{2}{\sum x_i + 3}.$$
+
+\section{Task PI66:}
+\subsection{a)}
+Writing $X=\left( X_{1},\ldots ,X_{n}\right)$, the log-likelihood function is \\
+\begin{equation*}
+\begin{split}
+$\ell\left( \tau\right) &=\log \prod ^{n}_{i=1}\dfrac {1}{\tau}e^{-x_{i}/\tau} \\
+& = -n\log \left( \tau\right) -\dfrac {1}{\tau}\sum ^{n}_{i=1}x_{i}$
+\end{split}
+\end{equation*}
+
+Now, take the derivative wrt to $\tau$ \\
+$$\ell'\left( \tau\right) = -\dfrac {n}{\tau}+\dfrac {1}{\tau^{2}}\sum ^{n}_{i=1}x_{i}$$ \\
+Solving for $l'\left( \tau\right) = 0$, the MLE of $\tau$ is \\
+$$\widehat {\tau}=\overline {X}$$
+\subsection{b)}
+Let $S=X_{1}+\ldots +X_{n}\sim \Gamma \left( n,\dfrac {1}{\tau}\right)$\\
+Thus, the PDF of $\overline {X}=\dfrac {S}{n}$ is:\\
+$$f_{\overline {X}}\left( x\right) =\dfrac {s^{n-1}}{\tau^{n}\Gamma \left( n\right) }e^{-s/ \tau}\left| \dfrac {ds}{dx}\right| = \dfrac {n^{n}x^{n-1}}{\tau^{n}\Gamma \left( n\right) }e^{-nx/\tau}, x >0,$$
+which is the PDF of the $\Gamma \left( n,n/\tau\right)$ distribution.
+\subsection{c) and d)}
+Since $\overline {X}\sim \Gamma \left( n,n/\tau\right)$, we have \\
+$$ E\left( \overline {X}\right) = \tau$$
+$$ Var\left( \overline {X}\right) =\dfrac {\tau^{2}}{n}$$
+From the CLT it follows that $\dfrac {\overline {X}-\tau}{\sqrt {\dfrac {\tau^{2}}{n}}}$ is approximately distirbuted as $N\left( 0,1\right)$ for large $n$.
+
+\subsection{e)}
+The Cramer-Rao lower bound is $1/\left[ nI\left( \tau \right) \right]$, where\\
+$$I\left( \tau \right) = -E\left[ \dfrac {\partial ^ {2}}{\partial \tau ^{2}}\log \left( \dfrac {1}{\tau }e^{-\frac {X_{1}}{\tau }}\right) \right] 
+= -\dfrac {1}{\tau ^{2}}-E\left( \dfrac {2X_{1}}{\tau ^{3}}\right) 
+= \dfrac {1}{\tau ^{2}}$$ \\
+since $E\left( X_{1}\right) =\tau$. This implies that the Cramer-Rao lower bound is \\
+$$ \left[ nI\left( \tau \right) \right] ^{-1}=\dfrac {\tau ^{2}}{n}  $$
+This lower bound equals the variance of $\overline {X}$. \\
+Thus, we conclude that there is no other unbiased estimate of $\tau$ with a smaller variance than $\overline {X}$.
+
+
+\subsection{f)}
+From part (c), we have $\dfrac {\overline {X}-\tau}{\sqrt {\dfrac {\tau^{2}}{n}}}$ is approximately distirbuted as $N\left( 0,1\right)$ for large $n$. \\
+Thus, an approximate $100 \left( 1-\alpha \right) \%$ CI for $\tau$ is: \\
+$$\overline {X}\pm z_{1-\alpha /2}\dfrac {\tau }{\sqrt {n}} \approx \overline {X}\pm z_{1-\alpha /2}\dfrac {\overline {X} }{\sqrt {n}}$$ \\
+or equivalently the set of $\tau$'s satisfying \\
+$$ \tau - z_{1-\alpha /2}\dfrac {\tau }{\sqrt {n}} \leq \overline {X} \leq \tau + z_{1-\alpha /2}\dfrac {\tau }{\sqrt {n}}$$
+
+\subsection{g)}
+Note that $\overline {X}$ has exactly the $\Gamma \left( n,n/\tau \right)$ distribution. \\
+Let $G_{\tau }\left( \alpha \right)$ denote the $100\alpha$ percentile of $\Gamma \left( n,n/\tau \right)$ distribution, i.e. \\
+$$P\left( \overline {X}\leq C_{\tau }\left( \alpha \right) \right) =\alpha  $$
+Then an exact $100 \left( 1-\alpha \right) \%$ CI for $\tau$ is given by the set of $\tau$'s satisfying \\
+$$ G_{\tau}\left( \alpha /2\right) \leq \overline {X}\leq G_{\tau}\left( 1-\alpha /2\right)$$
+
+\end{document}

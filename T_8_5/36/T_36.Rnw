@@ -1,0 +1,263 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{listings}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\author{Team 8}
+\title{Statistics 2 Pi}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+
+	\maketitle
+	\tableofcontents
+
+\newpage
+
+\section{Task 36}
+We will take the 2-parameter Weibull distribution:
+$$F_{\lambda,\beta}(x) = \begin{cases} 1 - e^{-(\frac{x}{\lambda})^\beta} \, ,\,x \geq 0 \\ 0 \,,\, x < 0 \end{cases} 
+$$
+$$f_{\lambda,\beta}(x) = \begin{cases} \frac{\beta}{\lambda}\left(\frac{x}{\lambda}\right)^{\beta-1}e^{-\left(\frac{x}{\lambda}\right)^{\beta}} \, ,\,x \geq 0 \\ 0 \,,\, x < 0 \end{cases} 
+$$
+with $\beta >0$ is the shape and $\lambda > 0$ is the scale parameter.\\
+\newline
+In the task we'll compare our results with the results of a popular package $fitdistrplus$.\\
+\newline
+Let's download the data into R:
+<<>>==
+require(fitdistrplus)
+initial <- read.table("http://statmath.wu.ac.at/~hornik/QFS2/Data/Theft.txt")
+Theft <- unname(unlist(initial))
+len <- length(Theft)
+@
+
+\subsection*{a) Estimation of parameters}
+\textbf{Method of percentiles}\\
+In this method one should equal the quantile values for the given data to the theoretical percentiles for the distribution to estimate the necessary parameters. In Weibull distribution we have two parameters: shape ($\beta$) and scale ($\lambda$).\\
+We use the first and the third quartiles of the given data set, denoted by $x_{0.25}$ and $x_{0.75}$, and we need to solve the following system of equations:
+\newline
+$$\begin{cases}
+1 - e^{-(\frac{x_{0.25}}{\lambda})^\beta} = 0.25\\
+1 - e^{-(\frac{x_{0.75}}{\lambda})^\beta} = 0.75
+\end{cases}$$
+The system yields to:
+\newline
+$$\begin{cases}
+\beta = \frac{log(\frac{log(1-0.25)}{log(1-0.75)})}{log(\frac{x_{0.25}}{x_{0.75}})}\\
+\lambda = \frac{x_{0.75}}{(-log(1-0.75))^{\frac{1}{\beta}}}
+\end{cases}$$
+
+<<>>==
+g1_W <- 0.25
+g2_W <- 0.75
+x1_T <- quantile(Theft, probs = g1_W, na.rm = FALSE,  names = FALSE)
+x2_T <- quantile(Theft, probs = g2_W, na.rm = FALSE,  names = FALSE)
+shape_T_QME <- log(log(1-g1_W)/log(1-g2_W))/log(x1_T/x2_T)
+shape_T_QME
+scale_T_QME <- x2_T/(-log(1-g2_W))^(1/shape_T_QME)
+scale_T_QME
+@
+Let's compare with $fitdistrplus$:
+<<>>==
+fit.weibull_qme <- fitdist(Theft, "weibull", method="qme", probs = c(g1_W, g2_W))
+summary(fit.weibull_qme)
+@
+Our results are almost the same.\\
+\newline
+\textbf{MLE}\\
+The likelihood function for the Weibull distribution is:
+$$
+\mathcal{L}_{\hat{x}}(\lambda, \beta)
+=\prod_{i=1}^N f_{\lambda,\beta}(x_i)
+=\prod_{i=1}^N \frac{\beta}{\lambda}\left(\frac{x_i}{\lambda}\right)^{\beta-1}e^{-\left(\frac{x_i}{\lambda}\right)^{\beta}} 
+= \frac{\beta^N}{\lambda^{N \beta}} e^{-\sum_{i=1}^N\left(\frac{x_i}{\lambda}\right)^{\beta}} \prod_{i=1}^N x_i^{\beta-1}
+$$
+
+loglikelihood function:
+
+$$
+\ell_{\hat{x}}(\lambda, \beta):= \ln \mathcal{L}_{\hat{x}}(\lambda, \beta)=N\ln \beta-N\beta\ln \lambda-\sum_{i=1}^N \left(\frac{x_i}{\lambda}\right)^\beta+(\beta-1)\sum_{i=1}^N \ln x_i
+$$
+
+MLE-Problem:
+    \begin{equation*}
+	\begin{aligned}
+\, \, \underset{(\lambda,\beta) \in \mathbb{R}^2}{\text{max}}\,\,\,\,\,\,
+	\, \ell_{\hat{x}}(\lambda, \beta) \\
+	\,\, \text{s.t.} \,\,\, \lambda > 0\\
+\,\, \beta > 0
+	\end{aligned}
+	\end{equation*}
+Maximization by $0$-gradients:
+
+\begin{align*}
+\frac{\partial l}{\partial \lambda}=-N\beta\frac{1}{\lambda}+\beta\sum_{i=1}^N x_i^\beta\frac{1}{\lambda^{\beta+1}} \, \stackrel{!}{=} 0\\
+\frac{\partial l}{\partial \beta}=\frac{N}{\beta}-N\ln\lambda-\sum_{i=1}^N \ln\left(\frac{x_i}{\lambda}\right)e^{\beta \ln\left(\frac{x_i}{\lambda}\right)}+\sum_{i=1}^N \ln x_i \, \stackrel{!}{=}0
+\end{align*}
+It follows:
+\begin{align*}
+-N\beta\frac{1}{\lambda}+\beta\sum_{i=1}^N x_i^\beta\frac{1}{\lambda^{\beta+1}} = 0\\\\
+-\beta\frac{1}{\lambda}N
++\beta\frac{1}{\lambda}\sum_{i=1}^N x_i^\beta\frac{1}{\lambda^{\beta}} = 0\\\\
+-1+\frac{1}{N}\sum_{i=1}^N x_i^\beta\frac{1}{\lambda^{\beta}}=0\\\\
+\frac{1}{N}\sum_{i=1}^N x_i^\beta=\lambda^\beta
+\end{align*}
+$$\Rightarrow\lambda^*=\left(\frac{1}{N}\sum_{i=1}^N x_i^{\beta^*}\right)^\frac{1}{\beta^*}$$
+
+Plugging $\lambda^*$ into the second 0-gradient condition:
+
+\begin{align*}
+\Rightarrow \beta^*=\left[\frac{\sum_{i=1}^N x_i^{\beta^*}\ln x_i}{\sum_{i=1}^N x_i^{\beta^*}}-\overline{\ln x}\right]^{-1}
+\end{align*}
+This equation is only numerically solvable.\\
+So let's make MLE estimation in R:
+<<>>==
+# Weibull MLE
+model <- function(x) {
+  F1 <- (sum(Theft^x[1]*log(Theft))/sum(Theft^x[1]) - mean(log(Theft))) ^ (-1) - x[1]
+  c(F1 = F1)
+}
+shape_T_MLE <- rootSolve::multiroot(f = model, start = c(0.85))$root[1]
+shape_T_MLE
+scale_T_MLE <- ((sum(Theft^shape_T_MLE))/length(Theft))^(1/shape_T_MLE)
+scale_T_MLE
+@
+Let's compare with $fitdistrplus$:
+<<>>==
+# to compare with fitdistrplus
+fit.weibull_mle <- fitdist(Theft, "weibull", method="mle")
+summary(fit.weibull_mle)
+@
+The results are pretty close again.
+We can compare values of loglikelihood functions:
+<<>>==
+
+loglike <- len*log(shape_T_MLE) - len*shape_T_MLE*log(scale_T_MLE) - sum((Theft/scale_T_MLE)^shape_T_MLE) + (shape_T_MLE - 1) * sum(log(Theft))
+formatC(loglike, digits = 7, format = "f") # by explicit formulas
+formatC(summary(fit.weibull_mle)$loglik, digits = 7, format = "f") # by fitdistrplus
+@
+It is clear that the difference appears just on the 6th decimal place.
+
+\subsection*{b) Bootstrapping to estimate the standard errors of the estimates}
+\textbf{Method of percentiles}\\
+At first, we use a bootstrap to make the samples with estimates. We decided to make a matrix with 1001 samples
+with each row as one bootstrap sample. Then for every sample we estimate parameters by the method of percentiles as we did for the original data set.
+<<>>==
+B <- 1001 # number of simulations
+shape_QME <- c(rep(0,B))
+scale_QME <- c(rep(0,B))
+x1 <- c(rep(0,B))
+x2 <- c(rep(0,B))
+s_QME <- matrix(0, B, len) # matrix of samples
+
+for (i in 1:B) {
+  s_QME[i,] <- sort(rweibull(len, shape_T_QME, scale_T_QME))
+  x1[i] <- quantile(s_QME[i,], probs = g1_W, na.rm = FALSE,  names = FALSE)
+  x2[i] <- quantile(s_QME[i,], probs = g2_W, na.rm = FALSE,  names = FALSE)
+shape_QME[i] <- log(log(1-g1_W)/log(1-g2_W))/log(x1[i]/x2[i])
+scale_QME[i] <- x2[i]/(-log(1-g2_W))^(1/shape_QME[i])
+}
+@
+So the standard errors are:
+<<>>==
+sd_shape_QME <- sd(shape_QME)
+sd_shape_QME # standard error of shape
+sd_scale_QME <- sd(scale_QME)
+sd_scale_QME # standard error of scale
+@
+\textbf{MLE}\\
+We make the same for MLE
+<<>>==
+B <- 1001 # number of simulations
+shape_MLE <- c(rep(0,B))
+scale_MLE <- c(rep(0,B))
+s_MLE <- matrix(0, B, len) # matrix of samples
+for (i in 1:B) {
+  s_MLE[i,] <- rweibull(len, shape_T_MLE, scale_T_MLE)
+  modelle <- function(x) {
+    F1 <- (sum(s_MLE[i,]^x[1]*log(s_MLE[i,]))/sum(s_MLE[i,]^x[1]) - mean(log(s_MLE[i,]))) ^ (-1) - x[1]
+    c(F1 = F1)
+  }
+  
+  shape_MLE[i] <- rootSolve::multiroot(f = modelle, start = c(0.85))$root[1]
+  scale_MLE[i] <- ((sum(s_MLE[i,]^shape_MLE[i]))/length(s_MLE[i,]))^(1/shape_MLE[i])
+}
+@
+So the standard errors are:
+<<>>==
+sd_shape_MLE <- sd(shape_MLE)
+sd_shape_MLE # standard error of shape
+sd_scale_MLE <- sd(scale_MLE)
+sd_scale_MLE # standard error of scale
+@
+Our result for shape standard error is slightly higher than in $fitdistrplus$, but our result for scale standard error is slightly lower than in $fitdistrplus$.
+
+\subsection*{c) 95\% confidence intervals for the parameters}
+In principle, there exist different approaches for estimation of confidence intervals using bootstrapping.
+\newline
+We use the approach from the lecture notes:
+\newline
+If the distribution of $\Delta = \hat{\theta} - \theta_0$ (where $\theta$ is a parameter of distribution) was known, confidence
+intervals could be obtained via
+$$P(Q_{\Delta} (\alpha/2) \leq \hat{\theta} - \theta_0 \leq Q_{\Delta} (1 - \alpha/2)) = 1 - \alpha$$
+as
+$$P(\hat{\theta} - Q_{\Delta} (1 - \alpha/2) \leq \theta_0 \leq \hat{\theta} - Q_{\Delta} (\alpha/2)) = 1 - \alpha$$
+But since $\theta_{0}$ is is not known, we use $\hat{\theta}$ in its place: we generate B bootstrap samples from the distribution with value $\hat{\theta}$, and compute the respective estimates of $\theta_b^*$ by the method chosen. The distribution of $\hat{\theta} - \theta_0$ is
+then approximated by that of $\theta^* - \hat{\theta}$ and the quantiles of this are used to form the approximate confidence interval.\\
+\textbf{Method of percentiles}\\
+The boundaries of approximated confidence interval by method of percentiles are as follows:
+<<>>==
+alpha <- 0.05
+delta_shape_QME <- sort(shape_QME - shape_T_QME)
+lower_shape_QME <- shape_T_QME -  quantile(delta_shape_QME, probs = 1 - alpha/2, na.rm = FALSE,  names = FALSE)
+lower_shape_QME
+upper_shape_QME <- shape_T_QME -  quantile(delta_shape_QME, probs = alpha/2, na.rm = FALSE,  names = FALSE)
+upper_shape_QME
+
+delta_scale_QME <- sort(scale_QME - scale_T_QME)
+lower_scale_QME <- scale_T_QME -  quantile(delta_scale_QME, probs = 1 - alpha/2, na.rm = FALSE,  names = FALSE)
+lower_scale_QME
+upper_scale_QME <- scale_T_QME -  quantile(delta_scale_QME, probs = alpha/2, na.rm = FALSE,  names = FALSE)
+upper_scale_QME
+@
+Results of $fitdistrplus$:
+<<>>==
+bd.weibull_qme <- bootdist(fit.weibull_qme, bootmethod = "param", niter = 1001)
+summary(bd.weibull_qme)
+@
+
+\textbf{MLE}\\
+The boundaries of approximated confidence interval by MLE are as follows:
+<<>>==
+delta_shape_MLE <- sort(shape_MLE - shape_T_MLE)
+lower_shape_MLE <- shape_T_MLE -  quantile(delta_shape_MLE, probs = 1 - alpha/2, na.rm = FALSE,  names = FALSE)
+lower_shape_MLE
+upper_shape_MLE <- shape_T_MLE -  quantile(delta_shape_MLE, probs = alpha/2, na.rm = FALSE,  names = FALSE)
+upper_shape_MLE
+
+delta_scale_MLE <- sort(scale_MLE - scale_T_MLE)
+lower_scale_MLE <- scale_T_MLE -  quantile(delta_scale_MLE, probs = 1 - alpha/2, na.rm = FALSE,  names = FALSE)
+lower_scale_MLE
+upper_scale_MLE <- scale_T_MLE -  quantile(delta_scale_MLE, probs = alpha/2, na.rm = FALSE,  names = FALSE)
+upper_scale_MLE
+@
+Results of $fitdistrplus$:
+<<>>==
+bd.weibull_mle <- bootdist(fit.weibull_mle, bootmethod = "param", niter = 1001)
+summary(bd.weibull_mle)
+@
+
+As a result, standard error of shape parameter is less with MLE. However, standard error of scale parameter is less with method of percentiles.
+\newline
+Therefore, 95\% confidence interval for shape parameter is narrower with MLE and for scale parameter it is narrower with the method of percentiles.
+\newline
+Confidence intervals calculated by approach given in lecture notes are somewhat skewed to the left in comparison with what is calculated by $fitdistrplus$.
+\end{document}

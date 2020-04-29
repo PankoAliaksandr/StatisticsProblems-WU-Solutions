@@ -1,0 +1,378 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,mathtools,bm,etoolbox, amsthm, bbm}
+\usepackage{amsfonts}
+
+\usepackage[T1]{fontenc}
+
+\usepackage{listings}
+\usepackage{inconsolata}
+%% We used knitr.
+%% To compile with sweave, delete it and insert sweave concordance line.
+<<echo=FALSE>>=
+  options(width=60)
+
+listing <- function(x, options) {
+  paste("\\begin{lstlisting}[basicstyle=\\ttfamily,breaklines=true]\n",
+        x, "\\end{lstlisting}\n", sep = "")
+}
+knit_hooks$set(source=listing, output=listing)
+@
+
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+\newcommand{\EV}[1]{\mathbb{E}\left[#1\right]}
+\newcommand{\Var}[1]{\text{Var}\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+
+\author{Team 8}
+\title{Statistics 2 Unit 1}
+\begin{document}
+
+
+	\maketitle
+	\tableofcontents
+
+\newpage
+
+\section{Task 61}
+\subsection{a)}
+
+The posterior : 
+\begin{align*}
+f_{\Theta|T}(\theta|t) \propto L_{T|\Theta}(t|\theta) f_\Theta (\theta)
+\end{align*}
+
+Since the $t_i$ are uniformly distributed, the likelihood function: 
+\begin{align*}
+L_{T|\Theta}(t|\theta)= f(t|\theta ) = \prod_{i=1}^{n} f(t_i|\theta )= \frac {1}{\theta^{n}} 
+\end{align*}
+
+Considering the prior function, it is Pareto distributed with paramters $\alpha, \beta$: 
+
+\begin{align*}
+f_{\Theta}(\theta)= f(\theta|\alpha,\beta) \propto \theta^{-(\alpha +1)}
+\end{align*}
+
+$\Rightarrow$ the posterior is: 
+\begin{align*}
+f_{\Theta|T}(\theta|t) \propto L_{T|\Theta}(t|\theta) f_\Theta (\theta) = \frac {1}{\theta^{n}} \theta^{-(\alpha +1)}
+\end{align*}
+It is also Pareto-distributed \\
+Plugging in: $\alpha=7, \beta=4, t_{max}=14, n=5$ we have that $t|\theta$are distributed as Pareto with parameters 12 and 14.
+
+\subsection{b)}
+
+\begin{align*}
+\EV{[\theta|t]}= \frac{\alpha \beta}{\alpha -1}= \frac{12 * 14}{12 -1} = 15.27
+\end{align*}
+
+\subsection{c)}
+
+\begin{align*}
+\Prob{\beta<\theta<C|t}= 1-a
+\end{align*}
+The critical value C for the upper bound in the interval $\theta$ must be larger than the posterior $\beta=14$, otherwise the density will be 0. \\
+Using the Pareto distribution we have: 
+
+\begin{align*}
+F(\theta|\alpha, \beta)= 1- (\frac{\beta}{\theta})^{\alpha} \\
+\Prob{\beta<\theta<C|t}= 1-a
+\end{align*}
+
+Finally: 
+
+\begin{align*}
+C= \frac{\beta}{(1-a)^{\frac{1}{\alpha}}}= 
+\frac{14}{(0.05)^{\frac{1}{12}}}=
+18
+\end{align*}
+
+And the $ 95\% $ HPD is (14, 18). \\
+\\
+\subsection{d)}
+If $\Prob{H_0|t}<0.5 $ then we reject the null hypothesis. So: \\
+
+$
+\Prob{H_0|t}= \Prob{0<\theta<15|t} - \Prob{14<\theta<15|t} =\\= F(15|\alpha=12, \beta=14) - F(14|\alpha=12, \beta=14)= 0.56 > 0.5
+$\\
+$\Rightarrow$ we can't reject the null hypothesis.
+
+\section{Task 62}
+Let $X_1,...,X_n$ be iid from a geometric distribution, i.e. $f(x) = p(1-p)^x,  x=0,1,...$.
+\subsection{a)}
+The likelihood function is given by:
+$$l(p,x_i) = \prod_{i=0}^{n} p(1-p)^{x_i} = p^n(1-p)^{\sum x_i}.$$
+Let's derive the posterior where the prior is a beta distribution:
+$$f(p|x_i) \propto l(p,x_i) ~ f(p) = p^n(1-p)^{\sum x_i} ~ \frac{p^{\alpha-1} ~ (1-p)^{\beta-1}}{B(\alpha, \beta)} = p^{\alpha + n -1} ~ (1-p)^{\beta + \sum x_i - 1}.$$
+Thus we see that the posterior is again a beta distribution with parameters (\alpha +n, \beta + \sum x_i)$. Therefore beta is a conjugate prior.\\
+\newline
+The Bayes estimator is defined as the expected value of the posterior distribution. So we get the Bayes estimator by applying the formula for the expected value of a beta distribution:
+
+$$\EV{p|x_i} = \frac{\alpha + n}{\alpha + \beta + \sum x_i + n}$$
+
+
+\subsection{ b)}
+The Jeffrey prior is defined as $\pi(p) \propto \sqrt{I(p)}.$\\
+So let's find the Fisher information.
+$$log(f(x)) = log(p) + x log (1-p)$$
+$$\frac{\partial log(f(x))}{\partial p} = \frac{1}{p} - \frac{x}{1-p}$$
+$$\frac{\partial^2 log(f)}{\partial p^2} = -\frac{1}{p^2} - \frac{ x}{(1-p)^2}$$
+Then the Fisher information is:
+
+$$I(p) = - \EV{\frac{\partial^2 log(f)}{\partial p^2}} = \frac{1}{p^2} + \EV{\frac{ x}{(1-p)^2}} = \frac{1}{p^2} + \frac{ \frac{1-p}{p}}{(1-p)^2} = \frac{1}{p^2 (1-p)}$$
+$$\pi(p) \propto \sqrt{I(p)} = \frac{1}{ p \sqrt{(1-p)}}.$$
+\newline
+The posterior is then found by
+$$f(p|x_i) \propto l(x_i) ~ \pi(p) = p^n(1-p)^{\sum x_i} ~ \frac{1}{ p \sqrt{(1-p)}} = p^{n-1} ~ (1-p)^{\sum x_i - 1/2}.$$
+We see that the posterior is again beta distributed with parameters $(n, \sum_{i=0}^{n} x_i + 1/2).$\\
+\newline
+Bayes estimator:
+$ \EV{p|x_i} = \frac{n}{n+\sum x_i + 1/2}
+
+\section{Task 63}
+\newline
+
+\subsection{a:}\\
+\newline
+
+We have 1 unknown parameter $\theta$, thus we need to calculate the fisrt moment $E(X)$. For the discrete case: \\
+\newline
+$E(X) = \sum_{i=1}^{n} p_i X_i$.\\
+\newline
+$E(X) = 0*2\theta/3 + 1*\theta/3 + 2*2(1 - \theta)/3 + 3*(1-\theta)/3 = (\theta + 4 - 4\theta + 3 - 3\theta)/3 = (-6\theta + 7)/3$\\
+\newline
+$=> \theta = -(3E(X) - 7)/6$\\
+\newline
+We can estimate $E(X)$ using the sample from the task:\\
+\newline
+$\hat{\mu} = 3 * 2/10 + 0 * 2/10 + 2 * 3/10 + 1 * 3/10 = 3/2$\\
+\newline
+$=> \hat{\theta}_{MoM} = -(3*3/2 - 7)/6 = 5/12$
+
+\subsection{b:}\\
+\newline
+We need to find standard deviation of $\hat{\theta}_{MoM}$
+$$Var(\hat{\theta}_{MoM}) = Var(-3\hat{\mu}/6 + 7/6) = 0.5^2 Var(\hat{\mu})$$
+we will use the knowledge that:
+$$Var(\hat{\mu}) = Var(X)/n$$
+$$Var(X) = \sum p_i x_i^2 - E(X)^2 = \frac{\theta + 8(1-\theta) + 9(1-\theta)}{3} - 9/4 = 1.19$$
+For the $\hat{\theta} = 5/12$.
+$$Sd(\hat{\theta}_{MoM}) = 0.5 \sqrt{1.19/10} = 0.1725$$
+
+\subsection{c:}\\
+\newline
+The likelihood function for the discret case will be:
+$$L(\theta) = \prod_{i = 1}^{n} P(X = x_i),$$
+where $P(X = x_i)$ is the probability mass function.
+$$L(\theta) = 2\theta/3 * \theta/3 * 2(1 - \theta)/3 * (1-\theta)/3$$
+$$l(\theta) = \log(2\theta/3) + \log(\theta/3) + \log(2(1 - \theta)/3) + \log((1-\theta)/3)$$
+$$\frac{\partial l(\theta)}{\partial\theta} = 1/\theta + 1/\theta - 1/(1-\theta) - 1/(1-\theta) = \frac{2-4\theta}{\theta - \theta^2} = 0$$
+$ => \hat{\theta}_{MLE} = 0.5$\\
+\newline
+
+\subsection{d:}\\
+\newline
+Recall the theorem that the maximum likelihood estimator $\hat{\theta}$ is asymptotically distributed as $N(\theta_0, \frac{1}{nI_\theta} )$.\\
+\newline
+$$I_{\theta} = -E_\theta(\frac{\partial l^2}{\partial \theta^2}) = -E_\theta(\frac{-4(\theta - \theta^2) - (1-2\theta)(2-4\theta)}{(\theta - \theta^2)^2}) = \frac{4\theta^2 - 4\theta + 2}{(\theta - \theta^2)^2}$$
+We can use our estimate for $\theta$ and calculate the Fisher Information:\\
+\newline
+$I = \frac{4*0.5^2 - 4*0.5 + 2}{(0.5 - 0.5^2)^2} = \frac{1 - 2 + 2}{0.125^2} = 1/0.5^2$\\
+\newline
+$$Var(\hat{\theta}) = \frac{1}{nI} = \frac{0.5^2}{10}$$
+$ => sd(\hat{\theta}) = 0.5/\sqrt{10} = 0.1581$\\
+\newline
+
+\subsection{e:}\\
+\newline
+The joint distribution of $X$ and $\theta$:
+$$f_{X,\theta} (x,\theta) = f_{X|\theta} (x|\theta) f_\theta (\theta)$$
+We know that prior $\sim U(0,1)$. Hence, $f_\theta (\theta) = \frac{1}{b-a} = 1$\\
+\newline
+$ => f_{X,\theta} (x,\theta) = f_X|\theta (x|\theta)$\\
+\newline
+It gives us, that joint density is equal to likelihood. Hence:
+$$f_{X,\theta} (x,\theta) = \prod_{i = 1}^{n} P(X = x_i) = 2\theta*\theta*2*(1 - \theta)(1 - \theta)/81 = (4\theta^4 - 8\theta^3 + 4\theta^2)/81$$
+We also know that posterior is equal to:
+$$f_{\theta|X} (\theta|x) = \frac{f_{x|\theta}(x|\theta) f_\theta (\theta)}{\int f_{x|\theta}(x|\theta) f_\theta (\theta) d\theta} = \frac{f_{x|\theta}(x|\theta)}{\int_0^1 f_{x|\theta}(x|\theta)d\theta} = \frac{(4\theta^4 - 8\theta^3 + 4\theta^2)/81}{\int_0^1 (4\theta^4 - 8\theta^3 + 4\theta^2)/81 d\theta} =$$
+$$= \frac{(4\theta^4 - 8\theta^3 + 4\theta^2)/81} {2/1215} = 7.5(4\theta^4 - 8\theta^3 + 4\theta^2) = 30\theta^4 - 60\theta^3 + 30\theta^2$$
+\newline
+<<echo=FALSE, fig=TRUE>>= 
+y<-function(x) {30*x^4 -60*x^3 + 30*x^2}
+plot(y, 0:1, type="l",col=2,main="Posterior density", xlab= "theta")
+@
+\newline
+On the graph we see that mode is equal to 0,5, i.e. mode is $\hat{\theta}_{MLE}$, because in order to find $\hat{\theta}_{MLE}$ we needed to find maximum of likelihood function and in this case posterior density is proportional to the likelihood (it follows from the fact that prior $\sim U(0,1)$).
+
+\section{Task 65}
+\subsection{a)}
+
+Suppose $\mu$ is known. Then, the loglikelihood function is: \\
+\begin{equation*}
+\begin{split}
+$
+\ell\left( \sigma \right) =\log \left[ \prod ^{n}_{i=1}\dfrac {1}{\sigma \sqrt {2\pi }}e^{-\dfrac {\left( X_{i}-\mu\right) ^{2}}{2\sigma ^{2}}}\right]
+&= -n\log \left( \sigma \right) -\dfrac {n}{2}\log \left( 2\pi \right) -\dfrac {1}{2\sigma ^{2}}\sum ^{n}_{i=1}\left( X_{i}-\mu \right) ^{2}
+$
+\end{split}
+\end{equation*}
+Differentiation of $\ell\left( \sigma \right)$ wrt $\sigma$, \\
+$$\ell'\left( \sigma \right) = -\dfrac {n}{\sigma }+\dfrac {1}{\sigma ^{3}}\sum ^{n}_{i=1}\left( X_{i}-\mu \right) ^{2}$$ \\
+The MLE $\widehat {\sigma }$ of $\sigma$ is obtained by solving $\ell'\left( \sigma \right) = 0$ \\
+Thus, $$ \widehat {\sigma } = \sqrt {\dfrac {1}{n}\sum ^{n}_{i=1}\left( X_{i}-\mu\right) ^{2}}$$
+\subsection{b)}
+Suppose $\sigma$ is known.The loglikelihood function is the same: \\
+\begin{equation*}
+\begin{split}
+$
+\ell\left( \mu\right) =\log \left[ \prod ^{n}_{i=1}\dfrac {1}{\sigma \sqrt {2\pi }}e^{-\dfrac {\left( X_{i}-\mu\right) ^{2}}{2\sigma ^{2}}}\right]
+&= -n\log \left( \sigma \right) -\dfrac {n}{2}\log \left( 2\pi \right) -\dfrac {1}{2\sigma ^{2}}\sum ^{n}_{i=1}\left( X_{i}-\mu \right) ^{2}
+$
+\end{split}
+\end{equation*}
+Differentiating $\ell(\mu)$ wrt $\mu$, we have \\
+$$\ell'(\mu) = \dfrac {1}{\sigma ^{2}}\sum ^{n}_{i=1}\left( X_{i}-\mu \right) $$ \\
+The MLE $\widehat {\mu }$ of $\mu$ is obtained by solving for $\mu$ which satisfies the equation $$\ell'(\mu) = 0$$ \\
+Thus, $$\widehat {\mu } = \overline {X}$$
+\subsection{c)}
+Note that $\overline {X}$ is an unbiased estimate for $\mu$ since $E\left( \overline {X}\right) =\mu$\\
+Now, calculate $I\left( \mu \right)$ \\
+$
+I\left( \mu \right) = -E\left[ \dfrac {\partial ^{2}}{\partial \mu ^{2}}\log f\left( X_{1}\right| \mu) \right]=
+\\= -E\left[ \dfrac {\partial ^{2}}{\partial \mu ^{2}}\left( -\log \left( 2\sigma \right) - \dfrac {1}{2}\log \left( 2\pi \right) -\dfrac {\left( X_{1}-\mu \right) ^{2}}{2\sigma ^{2}}\right)\right]
+\\= \dfrac {1}{\sigma ^{2}}
+$\\
+$$\Rightarrow Var\left( \overline {X}\right) =\dfrac {\sigma ^{2}}{n}=\dfrac {1}{nI\left( \mu \right)}$$\\
+Cramer-Rao Inequality states that if $T\left( X_{1},\ldots ,X_{n}\right)$ is any unbiased estimate of $\mu$, then \\
+$$Var\left( T\right) \geq \dfrac {1}{nI\left( \mu \right) }=Var\left( \overline {X}\right)$$\\
+This imlies that no other unbiased estimate of $\mu$ can have a smaller variance than $\overline {X}$.
+
+\section{Task 68}
+Let $X_1,...,X_n \text{iid} \sim P(\lambda)$ and let $T$ be a test statistics such that $T=\sum_{i=1}^{n} X_i$, which we will further denote as $\sum X_i$ for better readability.
+
+\subsection*{a)}
+Let's check if the given test statistics is sufficient. We have the following given:
+$$P(X_1,...,X_n, \lambda) = \prod_{i=1}^{n}e^{-\lambda} \frac{\lambda^{x_i}}{x_i!} = e^{-n\lambda}\frac{\lambda^{\sum x_i}}{x_1!...x_n!}$$
+
+$$P(T=t) = e^{-n\lambda}\frac{(n\lambda)^{t}}{t!}.$$
+
+Then we can look on its conditional distribution in order to check whether the test statistics contains all the necessary information. The joint density is
+$$P(X_1,...,X_n, T=t) = e^{-n\lambda}\frac{\lambda^{\sum x_i}}{x_1!...x_n!}$$ if $T=\sum_{i=1}^{n} X_i$ and $0$ else. So we need only consider the former case.\\
+Then the conditional is 
+$$P(X_1,...,X_n| T= t) = \frac{P(X_1,...,X_n, T=t)}{P(T=t)} = 
+\frac{e^{-n\lambda}\frac{\lambda^{\sum x_i}}{x_1!...x_n!}}{e^{-n\lambda} \frac{n^t \lambda^t}{t!}} \stackrel{T=t}{=} \frac{t!}{x_1!,...,x_n!} \frac{1}{n^{\sum x_i}} $$
+$$= \frac{(\sum_{i=1}^{n} X_i)!}{x_1!,...,x_n!} \frac{1}{n^{x_1}} \frac{1}{n^{x_2}}...\frac{1}{n^{x_n}}.$$
+\\
+It is sufficient, since in the multinomially distributed conditional is no longer a parameter $\lambda$ contained. This means all the necessary information are contained in the necessary statistic for parameter estimation if $T=t$.
+
+\subsection*{b)}
+Now we check the same for the case where $T=X_1$.
+$$P(X_i|T=X_1) = \frac{P(X_1,...,X_n, T=X_1)}{P(T=X_1)} = \frac{e^{-n\lambda}\frac{\lambda^{\sum x_i}}{x_1!...x_n!}}{e^{-\lambda} \frac{ \lambda^t}{t!}} = \frac{1}{{x_2!,...,x_n!}} \frac{e^{-(n-1)\lambda} \lambda^{\sum x_i}}{ \lambda ^{x_{1}} }.$$
+We see that our likelihood function conditioned on the test statistics $T=X_1$ doesn't eliminate parameter. Therefore, if we have this test statistics, not all information is included. Thus, this test statistics is not sufficient.
+
+
+\subsection*{c)}
+For using the factorization theorem we have to have a look closer on the likelihood function:
+$$P(X_1,...,X_n, \lambda) = \prod_{i=1}^{n}e^{-\lambda} \frac{\lambda^{x_i}}{x_i!} = e^{-n\lambda}\lambda^{\sum x_i} ~ \frac{1}{x_1!...x_n!}$$ where we have $g(\sum{x_i},\lambda) = e^{-n\lambda}\lambda^{\sum x_i}$ and $h(x_i) = \frac{1}{x_1!...x_n!}$.\\
+We can split the likelihood in two functions where in one is the parameter included and in the other not. This fulfills the factorization theorem. This is sufficient and necessary for a showing that the test statistics $T=\sum_{i=1}^{n} X_i$ is sufficient.
+
+\section{Task 69}
+We will consider 3 cases, where $\alpha$ is shape parameter and $\beta$ is rate parameter:\\
+\newline
+1) $\alpha, \beta$ are unknown;\\
+2) $\alpha$ is known, $\beta$ is unknown:\\
+3) $\alpha$ is unknown, $\beta$ is known.\\
+\newline
+First of all, we recall the factorization theorem:\\
+\newline
+A necessary and sufficient condition for $T(X_1, \dots, X_n)$ to be sufficient for a parameter $\theta$ is that the joint probability function factors in the form:
+$$f_\theta(x_1, \dots, x_n)= h(x_1, \dots, x_n) \, g_\theta(T(x_1, \dots, x_n))$$
+Now, we will consider the 1st case, when both parameters are unknown.\\
+We have $X_1,\dots,X_n$ which are i.i.d, so we can write the joint density $(X^n = X_1, \dots, X_n)$ as a product of densities:\\
+$$f_{X^n}(x^n) = \prod_{i=1}^n \frac{\beta^\alpha}{\Gamma(\alpha)} x_i^{\alpha -1} e^{-\beta x_i} = (\frac{\beta^\alpha} {\Gamma(\alpha)})^n \prod_{i=1}^n x_i^{\alpha-1} e^{-\beta \sum_{i=1}^n{x_i}}$$
+Here we can notice that joint density satisfies the factorization theorem, where $h(x^n) = 1$ and joint density itself is $g_\theta(T(x_1, \dots, x_n))$, because it is a function which is dependent on both parameters and on $X$ through the sufficient statistics: $T(X^n) = (\prod_{i=1}^n x_i , \sum_{i=1}^n x_i).$ So, in the case when $\alpha, \beta$ are unknown, we have that sufficient statistics $T(X^n)$ is a two-dimensional.\\
+\newline
+Now let's consider the case when $\alpha$ is known, $\beta$ is unknown:\\
+We have the same joint density, but as far as we know $\alpha$:
+$$h(x^n) = \frac{\prod_{i=1}^n x_i^{\alpha-1}} {\Gamma(\alpha)^n}; \,\,\, g_\theta(T(x^n)) = \beta^{\alpha n}e^{-\beta \sum_{i=1}^n{x_i}}$$
+In this case, $T(x^n) = \sum_{i=1}^n{x_i}$ will be sufficient statistics.\\
+\newline
+And in the last case, when $\alpha$ is unknown, $\beta$ is known, we again need to group the joint density taking into account that that $\beta$ is some constant:
+$$h(x^n) = e^{-\beta \sum_{i=1}^n{x_i}}; \,\,\, g_\theta(T(x^n)) = (\frac{\beta^{\alpha}}{\Gamma(\alpha)})^n \prod_{i=1}^n x_i^{\alpha-1}$$
+Here it's clear that when we know $\beta$, sufficient statistics is $T(x^n) = \prod_{i=1}^n x_i^{\alpha-1}.$ \\
+
+\section{Task 76}
+\subsection*{a)}
+We know, that $\Lambda = \frac{H_{0}}{H_{A}}$, thus:
+$$\Lambda(x_{1}) = \frac{0.2}{0.1} = 2$$
+$$\Lambda(x_{2}) = \frac{0.3}{0.4} = 0.75$$
+$$\Lambda(x_{3}) = \frac{0.3}{0.1} = 3$$
+$$\Lambda(x_{4}) = \frac{0.2}{0.4} = 0.5$$
+thus the order from the highest $\Lambda$ to the lowest would be $x_{3},x_{1},x_{2},x_{4}$
+
+\section*{b)}
+Let's rearrange the table, ordering the rows by decreasing $\Lambda$. We also add a column with $P(\Lambda(X) < \Lambda(x_i) | H_0)$, which is exactly the level of the test that rejects $H_0$ if $\Lambda(X) < \Lambda(x_i)$:
+\newline
+\begin{table}
+\begin{center}
+  \begin{tabular} {c|c|c|c|c}
+   $X$ & $H_0$ & $H_A$ & $\Lambda$ & $P(\Lambda(x) < \Lambda(x_i) | H_0)$\\
+    \hline
+    $x_3$ & 0.3 & 0.1 & 3 & 0.7 \\ \hline
+    $x_1$ & 0.2 & 0.1 & 2 & 0.5 \\ \hline
+    $x_2$ & 0.3 & 0.4 & 0.75 & 0.2 \\
+    $x_4$ & 0.2 & 0.4 & 0.5 & 0.0 \\
+    \hline
+  \end{tabular}
+\end{center}
+\end{table}
+\newline
+For $\alpha = 0.2$ the test that rejects $H_0$ is $\Lambda(X) < \Lambda(x_2)$ (or simply $\Lambda(X) < 0.75$).\\
+For $\alpha = 0.5$ the test that rejects $H_0$ is $\Lambda(X) < \Lambda(x_1)$ (or simply $\Lambda(X) < 2$).
+
+\section*{c)}
+From our prior probabilities we can compute the ratio of posterior probabilities by:
+\[
+\frac{P(H_{0}|x)}{P(H_{A}|x)} = \frac{P(H_{0})P(x|H_{0})}{P(H_{A})P(x|H_{A})} > 1
+\]
+Since $P(H_{0}) = P(H_{A})$, we get
+\[
+\frac{P(x|H_{0})}{P(x|H_{A})} > 1
+\]
+We can see from part a) that only $x_{1}$ and $x_{3}$ favor $H_{0}$.\\
+
+\section*{d)}
+From b) we can conclude that for $\alpha = 0.2$ the rejection region of the test is $\{x_4\} = \{x : \Lambda(X) < 3/4\}$.\\
+For the posterior odds to be less than 1, the prior odds must be less than 4/3, which corresponds to 
+$$P(H_0) = 1 - P(H_A) < \frac{4}{7}$$
+\newline
+For $\alpha = 0.5$ the rejection region of the test is $\{x_4, x_2\} = \{x : \Lambda(X) < 2\}$.\\
+For the posterior odds to be less tan 1,  the prior odds must be less than 0.5, which corresponds to 
+$$P(H_0) = 1 - P(H_A) < \frac{1}{3}$$
+To include ${x_2}$ in the rejection region it must be that $P(H_0) > 4/7$. So for $\alpha = 0.5$ the prior probabilities are such that
+$$4/7 < P(H_0) = 1 - P(H_A) < 1/3$$
+
+
+\section{Task 77}
+\textbf{a)} FALSE \\
+Significance level is the probability of a type I error, i.e. the probability that $H_0$ is rejected when it is true. \\
+\textbf{b)} FALSE \\
+The decrease of the significance level means that the probability of type I error (rejection of the null if it is true) decreases. The power is the probability that the null hypothesis is rejected when is false. By the Neyman - Pearson lemma if the significance level decreases, so does the power.\\
+\textbf{c)} FALSE \\
+Same as a)\\
+\textbf{d)} FALSE \\
+The power is the probability that the null hypothesis is correctly rejected, not falsely. \\
+\textbf{e)} FALSE \\
+When the test statistic falls in the rejection region of the test, the test procedure rejects the null hypothesis. This may lead to a correct decision of the null hypothesis is false, or to an incorrect decision (the type I error) if the null hypothesis is true. We do not know which.
+\\
+\textbf{f)} FALSE \\
+Both error types are serious. In Neyman-Pearson testing, we limit the size of the type I error and find the test that minimizes the type II error subject to the constraint. By controlling the size of the type I error, it is given precedence in specifying tests. In real life the answer actually depends on what is taken as $H_0$ and what is taken is $H_A$. For example, if for some medical test the $H_0$ is "the person is healthy", accepting the null hypothesis when it is false (type II error), i.e. assuming the person to be healthy when he/she is actually ill, is more serious. However, if we consider a criminal court procedure outcome (the final sentence) as a (to some extent) random variable and take as $H_0$ "the person is innocent", the type I error (to find an innocent person guilty) is considered in modern law theory to be worse than to free from a charge a person who is actually guilty. \\
+\textbf{g)} FALSE \\
+The power of a test is the conditional probability of correctly rejecting the null hypothesis when the alternate hypothesis is true. It is a function which is computed for every distribution in the alternate hypothesis.\\
+\textbf{h)} TRUE \\
+As a function of random variables, the likelihood ratio is also a random variable.
+
+
+\end{document}
